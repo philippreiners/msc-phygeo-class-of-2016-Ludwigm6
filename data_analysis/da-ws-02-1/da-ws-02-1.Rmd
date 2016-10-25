@@ -1,0 +1,76 @@
+---
+title: "da-ws-02-1"
+author: "Marvin Ludwig"
+date: "24 Oktober 2016"
+output: html_document
+---
+
+```{r}
+#Exercise 1
+n <- 0
+if (n > 1) {
+  print("Larger")
+}else{
+  print("Equal or smaller")
+}
+
+
+#Exercise 2
+if (n > 1) {
+  print("Larger")
+}else if(n == 1){
+  print("Equal")
+}else{
+  print("Smaller")
+}
+
+#Exercise 3
+# Die Funktion %% (Modulo) gibt den Rest einer Teilung wieder --> Teilung durch 2 mit Rest 1 --> Zahl ungerade
+if(n%%2 == 1) {
+  print("Odd")
+}else{
+  print("Even")
+}
+
+#Exercise 4
+for(n in c(-1,1,2)){
+  if (n > 1) {
+  print("Larger")
+}else if(n == 1){
+  print("Equal")
+}else{
+  print("Smaller")
+}
+}
+
+#Exercise 5
+v <- vector(mode = "character")
+l <- vector(mode = "numeric", length = 1)
+for(n in c(-1,1,2)){
+  l <- l + 1
+  if (n > 1) {
+  v[l] <- "Larger"
+}else if(n == 1){
+  v[l] <- "Equal"
+}else{
+  v[l] <- "Smaller"
+}
+}
+print(v)
+
+
+#Exercise 6
+v <- list()
+l <- vector(mode = "numeric", length = 1)
+for(n in c(-1,1,2)){
+  l <- l + 1
+  if (n > 1) {
+  v[l] <- "Larger"
+}else if(n == 1){
+  v[l] <- "Equal"
+}else{
+  v[l] <- "Smaller"
+}
+}
+print(v)
+```

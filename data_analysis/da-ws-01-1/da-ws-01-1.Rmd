@@ -1,0 +1,34 @@
+---
+title: "da-ws-01-1"
+author: "Marvin Ludwig, Charlotte Gohr, Klaas Rüggeberg"
+date: "21 Oktober 2016"
+output: html_document
+---
+
+
+```{R}
+a <- 2
+b <- 5
+
+r1 <- a+b
+r2 <- a-b
+r3 <- a*b
+r4 <- a/b
+
+v1 <- c(r1,r2,r3,r4)
+v1 <- c(v1,a**b)
+print(v1)
+
+v2 <- c("sum", "difference", "product", "ratio", "power")
+print(v2)
+
+df <- data.frame(SPALTE1 = v1, SPALTE2 = v2, stringsAsFactors = FALSE)
+#stringsAsFactors = FALSE verhindert bei print() einen Output der Faktorlevel
+# --> behandelt v2 als Character-Variable
+colnames(df) <- c("Results", "Operation")
+print(df)
+print(df[3,2])
+
+```
+
+
