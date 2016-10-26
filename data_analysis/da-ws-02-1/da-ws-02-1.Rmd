@@ -60,17 +60,37 @@ print(v)
 
 
 #Exercise 6
-v <- list()
-l <- vector(mode = "numeric", length = 1)
+li <- list()
+z <- vector(mode = "numeric", length = 1)
 for(n in c(-1,1,2)){
-  l <- l + 1
+  z <- z + 1
   if (n > 1) {
-  v[l] <- "Larger"
+  li[[z]] <- "Larger"
 }else if(n == 1){
-  v[l] <- "Equal"
+  li[[z]] <- "Equal"
 }else{
-  v[l] <- "Smaller"
+  li[[z]] <- "Smaller"
 }
 }
-print(v)
+print(li)
+
+
+
+#Exercise 7
+list <- lapply(c(-1,1,2), function(z){
+  if (z > 1) {
+  res <- "Larger"
+}else if(z == 1){
+  res <- "Equal"
+}else{
+  res <- "Smaller"
+}
+  return(res)
+})
+print(list)
+
+#Exercise 8
+print(unlist(list))
+
+
 ```

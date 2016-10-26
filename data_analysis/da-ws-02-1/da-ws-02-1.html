@@ -177,19 +177,19 @@ for(n in c(-1,1,2)){
 print(v)</code></pre>
 <pre><code>## [1] &quot;Smaller&quot; &quot;Equal&quot;   &quot;Larger&quot;</code></pre>
 <pre class="r"><code>#Exercise 6
-v &lt;- list()
-l &lt;- vector(mode = &quot;numeric&quot;, length = 1)
+li &lt;- list()
+z &lt;- vector(mode = &quot;numeric&quot;, length = 1)
 for(n in c(-1,1,2)){
-  l &lt;- l + 1
+  z &lt;- z + 1
   if (n &gt; 1) {
-  v[l] &lt;- &quot;Larger&quot;
+  li[[z]] &lt;- &quot;Larger&quot;
 }else if(n == 1){
-  v[l] &lt;- &quot;Equal&quot;
+  li[[z]] &lt;- &quot;Equal&quot;
 }else{
-  v[l] &lt;- &quot;Smaller&quot;
+  li[[z]] &lt;- &quot;Smaller&quot;
 }
 }
-print(v)</code></pre>
+print(li)</code></pre>
 <pre><code>## [[1]]
 ## [1] &quot;Smaller&quot;
 ## 
@@ -198,6 +198,29 @@ print(v)</code></pre>
 ## 
 ## [[3]]
 ## [1] &quot;Larger&quot;</code></pre>
+<pre class="r"><code>#Exercise 7
+list &lt;- lapply(c(-1,1,2), function(z){
+  if (z &gt; 1) {
+  res &lt;- &quot;Larger&quot;
+}else if(z == 1){
+  res &lt;- &quot;Equal&quot;
+}else{
+  res &lt;- &quot;Smaller&quot;
+}
+  return(res)
+})
+print(list)</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;Smaller&quot;
+## 
+## [[2]]
+## [1] &quot;Equal&quot;
+## 
+## [[3]]
+## [1] &quot;Larger&quot;</code></pre>
+<pre class="r"><code>#Exercise 8
+print(unlist(list))</code></pre>
+<pre><code>## [1] &quot;Smaller&quot; &quot;Equal&quot;   &quot;Larger&quot;</code></pre>
 
 
 
