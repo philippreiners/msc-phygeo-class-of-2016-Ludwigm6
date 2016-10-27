@@ -1,0 +1,17 @@
+---
+title: "rs-ws-01-2"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr, Janine"
+date: "27 Oktober 2016"
+output: html_document
+---
+
+![Fig.1: Digital terrain model i.e. Lidar-based height a.s.l. for all ground returns](D:\Uni\remote_sensing\DEM_lidar_ground.png)
+
+
+
+![Fig.2: Number of Lidar returns (counts) within each raster cell originated from the ground surface](D:\Uni\remote_sensing\lidar_return_count_ground1.png)
+
+
+
+
+
