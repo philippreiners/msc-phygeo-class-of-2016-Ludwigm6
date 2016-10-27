@@ -7,11 +7,16 @@ output: html_document
 
 ![Fig.1: Digital terrain model i.e. Lidar-based height a.s.l. for all ground returns](D:\Uni\remote_sensing\DEM_lidar_ground.png)
 
-
+1. Lidar Daten wie in der Übung in ArcMap geladen
+2. Unter Layers/ Properties/ Filters nur die Ground Points ausgewählt
+3. LAS-Dataset to Raster (Conversion) geöffnet
+4. Sampling value auf 1 gesetzt
+5. Ausgeführt; unter File/Export Map eine .tif Datei erstellt
 
 ![Fig.2: Number of Lidar returns (counts) within each raster cell originated from the ground surface](D:\Uni\remote_sensing\lidar_return_count_ground1.png)
 
-
-
-
-
+1. Lidar Daten wie in der Übung in ArcMap geladen
+2. Unter Layers/ Properties/ Filters nur die Ground Points ausgewählt
+3. LAS Point Statistics as Raster geöffnet
+4. Sampling value auf 1 gesetzt; PULSE_COUNT als Methode
+5. Ausgeführt; unter File/Export Map eine .tif Datei erstellt
