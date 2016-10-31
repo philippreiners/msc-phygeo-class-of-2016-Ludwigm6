@@ -1,0 +1,16 @@
+---
+title: "gi-ws-01-1"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "28 Oktober 2016"
+output: html_document
+---
+
+1. Problem: Es gibt zwei CRS mit dem Namen Pseudo_Mercator;
+Lösung: Nach dem EPSG Code gegooglet; EPSG:6871 ist veraltet
+  EPSG:3857 verwendet
+  
+
+2. Identifizierung von Strukturen:
+  - Hohe Intensitäten (hellere Strukturen) wenig Streuung --> Hausdächer
+  - Gleichmäßige Intensitäten auf Fläche --> Äcker, Felder, Wiesen
+  - Niedrige Intensitäten (dunkle Strukturen) hohe Absorption --> Wälder
