@@ -1,6 +1,6 @@
 ---
 title: "da-ws-02-1"
-author: "Marvin Ludwig"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
 date: "24 Oktober 2016"
 output: html_document
 ---
