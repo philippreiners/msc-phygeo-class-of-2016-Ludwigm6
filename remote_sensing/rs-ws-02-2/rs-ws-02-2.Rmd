@@ -30,8 +30,10 @@ plotRGB(r2)
 
 #Raster zuschneiden
 setwd(path_target)
-r1_crop <- crop(r1, m, filename = "r1_croped.tif")
-r2_crop <- crop(r2, m, filename = "r2_croped.tif")
+r1_crop <- crop(r1, m, filename = "478000_5632000.tif")
+r2_crop <- crop(r2, m, filename = "478000_5630000.tif")
 plotRGB(r1_crop)
 plotRGB(r2_crop)
 ```
+
+![Fig.1: Cropped Rasters](D:\Uni\remote_sensing\images\aerials_croped.png)
