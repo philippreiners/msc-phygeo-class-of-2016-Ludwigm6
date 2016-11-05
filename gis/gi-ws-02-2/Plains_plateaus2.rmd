@@ -1,0 +1,29 @@
+---
+title: "gi-ws-02-2"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "03 November 2016"
+output: html_document
+---
+
+Gemeinsamkeit von Ebene und Plateau:
+- Ebene Fläche, also geringen Neigungen 
+-> Slopes aus DEM berechnen
+
+![Fig.1: Slopes in QGIS berechnet](D:\Uni\gis\gi-ws-02-2\caldern_slopes_all.png)
+
+
+Algorithmus der ebene Flächen identifiziert muss leisten:  
+- Überprüfung der Rasterzelle auf einen Steigungs-Schwellenwert  
+- Bei einer Steigung unter einem definierten Schwellenwert wird die Zelle als ebene Fläche definiert  
+- Ist sie über dem Schwellenwert, wird sie als Neigungsfläche definiert  
+
+![Fig.2: Slopes visuell unterteilt in kleiner und größer 5° Steigung (willkürlicher Schwellenwert)](D:\Uni\gis\gi-ws-02-2\caldern_slopes_classes.png)
+
+
+Ebene von Plateau unterscheiden  
+- Definierte ebene Flächen mit benachbarten Neigungsflächen im DEM vergleichen  
+  - Angrenzende Flächen hauptsächlich "niedriger" => Plateau  
+  - Angrenzende Flächen hauptsächlich "höher" => Ebene  
+  
+![Fig.3: Flowchart des Algorithmus "Plain or Plateau"](D:\Uni\msc-phygeo-class-of-2016-Ludwigm6\gis\gi-ws-02-2\identify_plains.png)
+
