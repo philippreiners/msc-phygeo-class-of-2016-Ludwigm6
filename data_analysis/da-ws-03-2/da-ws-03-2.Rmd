@@ -27,13 +27,19 @@ for(i in c(2:7)){
 }
 
 #Kiefer:
-#Die Werte streuen weit aber relativ Gleichm‰ﬂig um den Median.
+#Die Werte streuen weit aber relativ gleichm‰ﬂig um den Median.
 #Buche:
-#Hohe Werte konzentrieren nahe des Median, niedrie Werte sind seltener und zerstreuter.
+#Hohe Werte konzentrieren sich nahe des Median, niedrie Werte sind seltener und zerstreuter.
 
 par(mfrow =c(2,2))
 plot(wood$Buche, wood$Eiche)
 plot(wood$Buche, wood$Kiefer)
 plot(wood$Buche, wood$Fichte)
 plot(wood$Buche, wood$Buntholz)
+
+
+#Eiche: In Jahren mit mehr Bucheneinschlag wurde auch mehr Eiche geerntet.
+#Kiefer: In Jahren mit mehr Bucheneinschlag wurde auch mehr Kiefer geerntet.
+#Fichte: Auch wenn viel Buche geerntet wurde, blieb der Fichteneinschlag ¸ber die Jahre relativ konstat.
+#Buntholz: Buntholz wurde groﬂteils gar nicht geerntet und wenn, dann sehr wenig.
 ```
