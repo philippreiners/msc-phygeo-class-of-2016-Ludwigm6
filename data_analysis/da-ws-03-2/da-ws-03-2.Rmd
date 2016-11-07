@@ -38,8 +38,10 @@ plot(wood$Buche, wood$Fichte)
 plot(wood$Buche, wood$Buntholz)
 
 
-#Eiche: In Jahren mit mehr Bucheneinschlag wurde auch mehr Eiche geerntet.
+#Eiche: In Jahren mit mehr Bucheneinschlag wurde auch mehr Eiche geerntet .
 #Kiefer: In Jahren mit mehr Bucheneinschlag wurde auch mehr Kiefer geerntet.
 #Fichte: Auch wenn viel Buche geerntet wurde, blieb der Fichteneinschlag über die Jahre relativ konstat.
 #Buntholz: Buntholz wurde großteils gar nicht geerntet und wenn, dann sehr wenig.
+
+
 ```
