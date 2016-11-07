@@ -31,17 +31,26 @@ for(i in c(2:7)){
 #Buche:
 #Hohe Werte konzentrieren sich nahe des Median, niedrie Werte sind seltener und zerstreuter.
 
-par(mfrow =c(2,2))
+par(mfrow = c(2,2))
 plot(wood$Buche, wood$Eiche)
 plot(wood$Buche, wood$Kiefer)
 plot(wood$Buche, wood$Fichte)
 plot(wood$Buche, wood$Buntholz)
-
 
 #Eiche: In Jahren mit mehr Bucheneinschlag wurde auch mehr Eiche geerntet .
 #Kiefer: In Jahren mit mehr Bucheneinschlag wurde auch mehr Kiefer geerntet.
 #Fichte: Auch wenn viel Buche geerntet wurde, blieb der Fichteneinschlag über die Jahre relativ konstat.
 #Buntholz: Buntholz wurde großteils gar nicht geerntet und wenn, dann sehr wenig.
 
-
+par(mfrow = c(1,1))
+plot(wood$Buche~as.character(wood$FWJ), lty=1, lwd=3, type = "p", col="darkblue",
+      xlab = "Years", ylab = "Holzschlag",
+      ylim = c(0,4000), xlim = c(1997,2014),
+      yaxs = "i", xaxs = "i")
+points(wood$Eiche~as.character(wood$FWJ), lty=1, lwd=3, type = "p", col="orange")
+points(wood$Buntholz~as.character(wood$FWJ), lty=1, lwd=3, type = "p", col="red")
+points(wood$Fichte~as.character(wood$FWJ), lty=1, lwd=3, type = "p", col="green")
+points(wood$Kiefer~as.character(wood$FWJ), lty=1, lwd=3, type = "p", col="grey")
+legend("topright",c("Buche", "Eiche", "Buntholz", "Fichte", "Kiefer"), pch = "o", col = c("darkblue", "orange", "red", "green", "grey"))
 ```
+
