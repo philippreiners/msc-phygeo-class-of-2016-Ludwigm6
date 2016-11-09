@@ -123,7 +123,81 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>library(raster)</code></pre>
+<pre class="r"><code>library(raster)
+library(tools)
+
+
+#Datenpfade definieren
+filepath_base &lt;- &quot;D:/Uni/remote_sensing/&quot;
+path_temp &lt;- paste0(filepath_base, &quot;temp/&quot;)
+path_data &lt;- paste0(filepath_base, &quot;data/forest_caldern_tif/raster/&quot;)
+path_target &lt;- paste0(filepath_base, &quot;data/forest_caldern_tif/raster_rdata/&quot;)
+path_scripts &lt;- paste0(filepath_base, &quot;scripts/&quot;)
+rasterOptions(tmpdir = path_temp)
+
+source(paste0(path_scripts, &quot;fun_ngb_aerials.R&quot;)) # Load functions from scripts
+
+#Gibt benachbarte Dateinamen aus: Nord, Ost, Süd, West
+#Einlesereihenfolge: Oben-links, Unten-links, Oben-mitte, Unten-mitte, Oben-rechts, Unten-rechts
+files &lt;- c(&quot;474000_5632000.tif&quot;, &quot;474000_5630000.tif&quot;, &quot;476000_5632000.tif&quot;,
+           &quot;476000_5630000.tif&quot;, &quot;478000_5632000.tif&quot;, &quot;478000_5630000.tif&quot;)
+neighbors &lt;- ngb_aerials(files, step = 2000)
+#Anwählen einzelner Dateinamen
+#neighbors[[6]][4]
+
+
+#########################################################
+#Ausführen auf eigene Gefahr!
+#Könnte Jahre dauern!
+
+result &lt;- numeric()
+raster_res &lt;- list()
+border_res &lt;- list()
+res_list &lt;- list(raster_res, border_res)
+
+#Alle 6 Raster durchzählen
+for(i in 1:6){
+  #Erster Raster Einlesen
+  center &lt;- stack(paste0(path_data, files[i]))
+  #Grenzen berechnen
+  c_top &lt;- center[1,]
+  c_right &lt;- center[,ncol(center)]
+  c_down &lt;- center[nrow(center),]
+  c_left &lt;- center[,1]
+  c_border &lt;- list(c_top, c_right, c_down, c_left)
+  
+  #Alle vier Seiten durchtesten
+  for(j in 1:4){
+    #Nachbarraster einlesen
+    neighbor &lt;- stack(paste0(path_data, neighbors[[i]][j]))
+    #Nachbargrenzen berechnen
+    n_down &lt;- neighbor[nrow(neighbor),]
+    n_left &lt;- neighbor[,1]
+    n_top &lt;- neighbor[1,]
+    n_right &lt;- neighbor[,ncol(neighbor)]
+    n_border &lt;- list(n_down, n_left, n_top, n_right)
+    
+    
+    if(!is.na(neighbors[[i]][j])){
+      #richtige Linie Extrahieren
+      c_line &lt;- c_border[[j]]
+      n_line &lt;- n_border[[j]]
+      
+      #Histogram ertellen und counts Vergleichen: Je mehr Nullen oder kleine Werte im Ergebnis desto ähnlicher die beiden Raster
+      c_hist &lt;- hist(c_line, breaks = seq(0,255,5))
+      n_hist &lt;- hist(n_line, breaks = seq(0,255,5))
+      result &lt;- c_hist$counts - n_hist$counts
+      
+      #Ergebnisse speichern
+      res_list[[i]][[j]] &lt;- result
+    }
+  }
+}
+#########################################################</code></pre>
+<pre class="r"><code>#####Test des Algorithmus ohne Schleife
+
+
+library(raster)</code></pre>
 <pre><code>## Loading required package: sp</code></pre>
 <pre class="r"><code>library(tools)
 
