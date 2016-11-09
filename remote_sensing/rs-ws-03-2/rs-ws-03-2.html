@@ -138,6 +138,20 @@ rasterOptions(tmpdir = path_temp)
 
 source(paste0(path_scripts, &quot;fun_ngb_aerials.R&quot;)) # Load functions from scripts
 
+#Gibt benachbarte Dateinamen aus: Nord, Ost, Süd, West
+#Einlesereihenfolge: Oben-links, Unten-links, Oben-mitte, Unten-mitte, Oben-rechts, Unten-rechts
+neighbors &lt;- ngb_aerials(c(&quot;474000_5632000.tif&quot;,
+                           &quot;474000_5630000.tif&quot;,
+                           &quot;476000_5632000.tif&quot;,
+                           &quot;476000_5630000.tif&quot;,
+                           &quot;478000_5632000.tif&quot;,
+                           &quot;478000_5630000.tif&quot;), step = 2000)
+#Anwählen einzelner Dateinamen
+neighbors[[6]][4]</code></pre>
+<pre><code>##   476000_5630000.tif 
+## &quot;476000_5630000.tif&quot;</code></pre>
+<pre class="r"><code>#########################################################
+
 
 ##Test mit Layer Oben-Links und Unten-Links
 topleft &lt;- stack(paste0(path_data,&quot;474000_5632000.tif&quot;))
@@ -146,6 +160,8 @@ btmleft &lt;- stack(paste0(path_data,&quot;474000_5630000.tif&quot;))
 #Letzte Zeile von topleft und erste Zeile von btmleft extrahieren
 lastline &lt;- topleft[nrow(topleft),]
 firstline &lt;- btmleft[1,]
+
+
 
 #Histogramme erstellen und vergleichen
 h_lastline &lt;- hist(lastline, breaks = seq(0,255,5))</code></pre>

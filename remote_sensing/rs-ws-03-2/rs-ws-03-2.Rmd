@@ -21,6 +21,20 @@ rasterOptions(tmpdir = path_temp)
 
 source(paste0(path_scripts, "fun_ngb_aerials.R")) # Load functions from scripts
 
+#Gibt benachbarte Dateinamen aus: Nord, Ost, Süd, West
+#Einlesereihenfolge: Oben-links, Unten-links, Oben-mitte, Unten-mitte, Oben-rechts, Unten-rechts
+neighbors <- ngb_aerials(c("474000_5632000.tif",
+                           "474000_5630000.tif",
+                           "476000_5632000.tif",
+                           "476000_5630000.tif",
+                           "478000_5632000.tif",
+                           "478000_5630000.tif"), step = 2000)
+#Anwählen einzelner Dateinamen
+neighbors[[6]][4]
+
+
+#########################################################
+
 
 ##Test mit Layer Oben-Links und Unten-Links
 topleft <- stack(paste0(path_data,"474000_5632000.tif"))
@@ -29,6 +43,8 @@ btmleft <- stack(paste0(path_data,"474000_5630000.tif"))
 #Letzte Zeile von topleft und erste Zeile von btmleft extrahieren
 lastline <- topleft[nrow(topleft),]
 firstline <- btmleft[1,]
+
+
 
 #Histogramme erstellen und vergleichen
 h_lastline <- hist(lastline, breaks = seq(0,255,5))
