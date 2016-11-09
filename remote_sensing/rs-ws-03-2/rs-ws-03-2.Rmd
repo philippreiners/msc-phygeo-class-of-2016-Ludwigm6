@@ -1,0 +1,38 @@
+---
+title: "rs-ws-03-2"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "9 November 2016"
+output: html_document
+---
+
+
+```{r}
+library(raster)
+library(tools)
+
+
+#Datenpfade definieren
+filepath_base <- "D:/Uni/remote_sensing/"
+path_temp <- paste0(filepath_base, "temp/")
+path_data <- paste0(filepath_base, "data/forest_caldern_tif/raster/")
+path_target <- paste0(filepath_base, "data/forest_caldern_tif/raster_rdata/")
+path_scripts <- paste0(filepath_base, "scripts/")
+rasterOptions(tmpdir = path_temp)
+
+source(paste0(path_scripts, "fun_ngb_aerials.R")) # Load functions from scripts
+
+
+##Test mit Layer Oben-Links und Unten-Links
+topleft <- stack(paste0(path_data,"474000_5632000.tif"))
+btmleft <- stack(paste0(path_data,"474000_5630000.tif"))
+
+#Letzte Zeile von topleft und erste Zeile von btmleft extrahieren
+lastline <- topleft[nrow(topleft),]
+firstline <- btmleft[1,]
+
+#Histogramme erstellen und vergleichen
+h_lastline <- hist(lastline, breaks = seq(0,255,5))
+h_firstline <- hist(firstline, breaks = seq(0,255,5))
+h_lastline$counts - h_firstline$counts
+
+```
