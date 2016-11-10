@@ -1,13 +1,23 @@
 ---
 title: "rs-ws-03-2"
-author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr, Janine Liebs"
 date: "9 November 2016"
 output: html_document
 ---
 
+* Grenzstreifen der Kacheln extrahieren
+* Verteilung der Werte der Grenzstreifen betrachten (Histogramme)
+* Histogramme subtrahieren; bei Werten um 0 (im Median) sind die Kacheln angeglichen
 
+* Der Algorithmus muss leisten:
+    + Zwischen den Kacheln durchschalten
+    + Zwischen den vier Grenzstreifen durchschalten
+    + Erkennen ob eine Grenzkachel vorhanden ist
+    + Die äquivalenten Grenzstreifen verrechnen
+  
+
+## Algorithmus
 ```{r, eval = FALSE}
-###Skript funktioniert; warscheinlich sollte noch die Analysemethode ausgetauscht werden
 library(raster)
 library(tools)
 
@@ -41,7 +51,7 @@ res5 <- list()
 res6 <- list()
 res_list <- list(res1, res2, res3, res4, res5, res6)
 
-#Alle 6 Raster durchzählen
+#Alle sechs Rasterkacheln durchzählen
 for(i in 1:6){
   #Erster Raster Einlesen
   center <- stack(paste0(path_data, files[i]))
@@ -55,7 +65,7 @@ for(i in 1:6){
   
   #Alle vier Seiten durchtesten
   for(j in 1:4){
-    #Nachbarraster einlesen
+    #Nachbarkachel einlesen; Prüfen ob dieser überhaupt vorhanden ist
     if(!is.na(neighbors[[i]][j])){
     neighbor <- stack(paste0(path_data, neighbors[[i]][j]))
     #Nachbargrenzen berechnen
@@ -69,15 +79,17 @@ for(i in 1:6){
       c_line <- c_border[[j]]
       n_line <- n_border[[j]]
       
-      #Histogram ertellen und counts Vergleichen: Je mehr Nullen oder kleine Werte im Ergebnis desto ähnlicher die beiden Raster
-      #ERSTEZEN DURCH VARIANZANALYSE?
+#Histogramme mit gleichen Grenzen erstellen und counts subtrahieren:
+#Je mehr Nullen oder kleine Werte im Ergebnis desto ähnlicher die beiden Kacheln
       c_hist <- hist(c_line, breaks = seq(0,255,5))
       n_hist <- hist(n_line, breaks = seq(0,255,5))
       result <- c_hist$counts - n_hist$counts
       
       #Ergebnisse speichern
       res_list[[i]][[j]] <- result
+      
     }else{
+      #Wenn die Nachbarkachel nicht vorhanden ist, NA an den entsprechenden Listenplatz eintragen
       res_list[[i]][[j]] <- NA
     }
   }
@@ -90,54 +102,26 @@ saveRDS(res_list, file = paste0(path_target, "rs-ws-03-2_results.rds"))
 ```
 
 
-
+## Darstellung der Ergebnisse:
 ```{r}
-#####Test des Algorithmus ohne Schleife
-
-
-library(raster)
-library(tools)
-
-
-#Datenpfade definieren
 filepath_base <- "D:/Uni/remote_sensing/"
-path_temp <- paste0(filepath_base, "temp/")
-path_data <- paste0(filepath_base, "data/forest_caldern_tif/raster/")
-path_target <- paste0(filepath_base, "data/forest_caldern_tif/raster_rdata/")
-path_scripts <- paste0(filepath_base, "scripts/")
-rasterOptions(tmpdir = path_temp)
-
-source(paste0(path_scripts, "fun_ngb_aerials.R")) # Load functions from scripts
-
-#Gibt benachbarte Dateinamen aus: Nord, Ost, Süd, West
-#Einlesereihenfolge: Oben-links, Unten-links, Oben-mitte, Unten-mitte, Oben-rechts, Unten-rechts
-neighbors <- ngb_aerials(c("474000_5632000.tif",
-                           "474000_5630000.tif",
-                           "476000_5632000.tif",
-                           "476000_5630000.tif",
-                           "478000_5632000.tif",
-                           "478000_5630000.tif"), step = 2000)
-#Anwählen einzelner Dateinamen
-neighbors[[6]][4]
-
-
-#########################################################
-
-
-##Test mit Layer Oben-Links und Unten-Links
-topleft <- stack(paste0(path_data,"474000_5632000.tif"))
-btmleft <- stack(paste0(path_data,"474000_5630000.tif"))
-
-#Letzte Zeile von topleft und erste Zeile von btmleft extrahieren
-lastline <- topleft[nrow(topleft),]
-firstline <- btmleft[1,]
+path_target <- paste0(filepath_base, "data/forest_caldern_tif/rdata/")
 
 
 
-#Histogramme erstellen und vergleichen
-par(mfrow = c(1,2))
-h_lastline <- hist(lastline, breaks = seq(0,255,5))
-h_firstline <- hist(firstline, breaks = seq(0,255,5))
-h_lastline$counts - h_firstline$counts
+files <- c("474000_5632000.tif", "474000_5630000.tif", "476000_5632000.tif",
+           "476000_5630000.tif", "478000_5632000.tif", "478000_5630000.tif")
+results <- readRDS(file = paste0(path_target, "rs-ws-03-2_results.rds"))
+
+unlist <- numeric()
+for(i in 1:6){
+  temp_unlist <- unlist(results[[i]])
+  print(files[i])
+  print(summary(temp_unlist))
+}
 
 ```
+  
+**Die Mediane liegen alle bei 0. Damit sind die einzelnen Kachen bereits radiometrisch Angeglichen.**
+  
+  
