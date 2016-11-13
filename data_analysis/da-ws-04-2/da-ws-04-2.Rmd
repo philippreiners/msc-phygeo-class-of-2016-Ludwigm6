@@ -1,0 +1,23 @@
+---
+title: "da-ws-04-2"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "13 November 2016"
+output: html_document
+---
+
+
+###Aufgabe:
+* R-Funktion: Auftrennen der 'Place' Spalte
+    + in 'Place' , 'Admin_unit' , 'Admin_misc'
+    + an Position 3 bis 5 der Originaltabelle
+* in da-ws-04-1 den Codeblock mit der Funktion ersetzen und die Tabelle als RDS speichern
+* die land-use Daten äquivalent bereinigen
+* in die Markdown beide RDS Tabellen einlesen und die ersten 5 Zeilen ausgeben
+
+
+
+
+
+```{r}
+
+```
