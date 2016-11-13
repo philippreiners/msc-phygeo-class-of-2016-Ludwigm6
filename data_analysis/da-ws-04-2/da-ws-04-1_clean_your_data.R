@@ -8,7 +8,6 @@ ernte <- read.table(paste0(path_data, "115-46-4_feldfruechte.txt"), skip  = 6, h
 colnames(ernte) <- c("Year", "ID", "Place", "Winter_wheat", "Rye", "Winter_barley",
                      "Spring_barley", "Oat", "Triticale", "Potatos", "Suggar_beets",
                      "Rapeseed", "Silage_maize")
-
 head(ernte)
 str(ernte)
 

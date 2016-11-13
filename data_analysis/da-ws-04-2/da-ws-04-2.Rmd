@@ -6,18 +6,14 @@ output: html_document
 ---
 
 
-###Aufgabe:
-* R-Funktion: Auftrennen der 'Place' Spalte
-    + in 'Place' , 'Admin_unit' , 'Admin_misc'
-    + an Position 3 bis 5 der Originaltabelle
-* in da-ws-04-1 den Codeblock mit der Funktion ersetzen und die Tabelle als RDS speichern
-* die land-use Daten äquivalent bereinigen
-* in die Markdown beide RDS Tabellen einlesen und die ersten 5 Zeilen ausgeben
-
-
-
-
-
+## Show results
 ```{r}
+filepath_base <- "D:/Uni/data_analysis/"
+path_data <- paste0(filepath_base, "data/")
 
+landuse <- readRDS(paste0(path_data, "landuse_data.rds"))
+harvest <- readRDS(paste0(path_data, "harvest_data.rds"))
+
+head(landuse)
+head(harvest)
 ```

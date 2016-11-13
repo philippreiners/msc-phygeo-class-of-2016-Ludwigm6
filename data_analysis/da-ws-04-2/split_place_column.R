@@ -1,6 +1,4 @@
 placesplit <- function(df){
-df <- ernte
-  
 columns <- colnames(df)
 
 #Prüfen ob genaue eine Spalte mit dem Namen 'Place' vorhanden ist
@@ -46,8 +44,8 @@ place_df <- lapply(place, function(i){
 place_df <- do.call("rbind", place_df)
 
 #Die 'Primaerschluessel' der Ursprungstabelle der Place-Tabelle hinzufügen
-place_df$ID <- ernte$ID
-place_df$Year <- ernte$Year
+place_df$ID <- df$ID
+place_df$Year <- df$Year
 
 
 #Wenn in Spalte C kein NA steht (also 'Kreisfreie Stadt') 
