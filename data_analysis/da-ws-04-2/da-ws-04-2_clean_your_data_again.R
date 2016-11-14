@@ -1,6 +1,7 @@
-filepath_base <- "D:/Uni/data_analysis/"
-path_data <- paste0(filepath_base, "data/")
-path_scripts <- paste0(filepath_base, "scripts/")
+filepath_base <- "D:/Uni/landuse_harvest/"
+path_data <- paste0(filepath_base, "data/csv/")
+path_target <- paste0(filepath_base, "data/rdata/")
+path_scripts <- "D:/Uni/msc-phygeo-class-of-2016-Ludwigm6/data_analysis/da-ws-04-2"
 
 landuse <- read.table(paste0(path_data, "AI001_gebiet_flaeche.txt"), skip = 4, header = TRUE, sep = ";", dec = ",")
 
@@ -30,4 +31,4 @@ summary(landuse)
 source(paste0(path_scripts, "split_place_column.R"))
 landuse <- placesplit(landuse)
 
-saveRDS(landuse, paste0(path_data, "landuse_data.rds"))
+saveRDS(landuse, paste0(path_target, "landuse_data.rds"))

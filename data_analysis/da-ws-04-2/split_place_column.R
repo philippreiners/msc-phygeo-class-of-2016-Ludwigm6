@@ -1,6 +1,7 @@
 placesplit <- function(df){
 columns <- colnames(df)
 
+
 #Prüfen ob genaue eine Spalte mit dem Namen 'Place' vorhanden ist
 secure_pl <- 0
 for(i in 1:length(columns)){

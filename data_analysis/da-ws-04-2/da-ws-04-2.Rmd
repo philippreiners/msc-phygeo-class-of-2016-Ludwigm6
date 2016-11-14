@@ -8,12 +8,14 @@ output: html_document
 
 ## Show results
 ```{r}
-filepath_base <- "D:/Uni/data_analysis/"
-path_data <- paste0(filepath_base, "data/")
+
+filepath_base <- "D:/Uni/landuse_harvest/"
+path_data <- paste0(filepath_base, "data/rdata/")
 
 landuse <- readRDS(paste0(path_data, "landuse_data.rds"))
 harvest <- readRDS(paste0(path_data, "harvest_data.rds"))
 
 head(landuse)
 head(harvest)
+
 ```
