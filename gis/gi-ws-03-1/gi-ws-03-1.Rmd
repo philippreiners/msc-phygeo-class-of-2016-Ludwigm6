@@ -1,0 +1,54 @@
+---
+title: "gi-ws-03-1"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "14 November 2016"
+output: html_document
+---
+Da die Ansteuerung in R nicht funktioniert hat haben wir es in SAGA versucht - mit mäßigem Erfolg.  
+
+![Fig. 1: Saga Modul Slope, Aspect, Curvature](D:\Uni\forest_caldern\images\SAGA_Modul_curvature.png)
+
+Mit dem Modul 'Slope, Aspect, Curvature' wurden die benötigten Raster für das Fuzzy Landform Element Classification  
+berechnet.
+
+![Fig. 2: Saga Modul Fuzzy Landform Element Classification](D:\Uni\forest_caldern\images\SAGA_Modul_Fuzzy.png)
+
+## Ergebnis der Klassifikation:
+![Fig. 3: Ergebnis der Klassifikation](D:\Uni\forest_caldern\images\SAGA_Results.png)
+In Grau sind die klassifizierten Ebenen dargestellt. Dieses Ergebnis ist allerdings unbrauchbar, da der gesamte Calderner Wald als eine Ebene dargestellt wird, welche aus dem DEM wiederlegt werden kann.
+
+
+## Skizzierung des Algorithmus 'Ebene oder Plateau'
+
+```{r, eval = FALSE}
+
+function(DEM, Class){
+  
+  Für alle Zellen Prüfen ob eine Nachbarzelle nicht Plain ist:
+  Wenn ja, dann Berechnen ob es ein Plain oder Plateau ist.
+  if(Class == 'Plain'){
+    
+    if(eine Nachbarzelle != Plain){
+      
+      Zelle_height <- Höhe der Ursprungszelle aus dem DEM
+      mean_height <- Durchschnittshöhe aller Nachbarzellen aus dem DEM
+      
+    }
+    if(mean_height > height_Zelle){
+      res <- 'Ebene'
+    }else{
+      res <- 'Plateau'
+    }
+  }
+  Wenn alle Nachbarzellen einer Zelle ursprünglich als Plain definiert sind, sollen diese die Klassifikation 'Ebene' oder 'Plateau' aus der Berechnung übernehmen:
+    
+  if(alle Nachbarzellen == 'Plain'){
+    res <- Klassifikation der Nachbarzellen
+  }
+  
+  
+  
+}
+
+
+```
