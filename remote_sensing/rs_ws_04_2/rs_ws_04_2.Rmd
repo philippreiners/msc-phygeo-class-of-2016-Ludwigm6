@@ -1,0 +1,47 @@
+---
+title: "rs_ws_04_2"
+author: "Marvin Ludwig, Klaas Rüggeberg, Charlotte Gohr"
+date: "17 November 2016"
+output: html_document
+---
+## Spatial Filtering
+
+**Gewählter Filter: Correlation**  
+Correlation gibt an wie stark die Beziehung zwischen dem Pixel und seinen Nachbarn ist,  
+im vergleich zu anderen Pixel im gesamten Bild.  
+Fallen die Korrelationswerte bei einer 'windowsize' ab, kann dies als die Größe betrachtet werden,  
+in der Objekte im Bild definiert werden können.  
+**Quellen:**  
+http://www.fp.ucalgary.ca/mhallbey/correlation.htm  
+https://de.mathworks.com/help/images/ref/graycoprops.html?requestedDomain=www.mathworks.com  
+
+## Results
+```{r}
+
+# define project folder
+filepath_base <- "D:/Uni/forest_caldern/"
+
+# initialise the script and save all filepaths in a list
+source("D:/Uni/r_functions/initialize.R")
+path <- initialize(filepath_base)
+path$aerial_filter <- paste0(path$data, "aerial_filter/")
+
+library(raster)
+
+# load raster file
+cor_11 <- raster(paste0(path$aerial_filter, "478000_5630000_correlation_11.tif"))
+cor_33 <- raster(paste0(path$aerial_filter, "478000_5630000_correlation_33.tif"))
+cor_55 <- raster(paste0(path$aerial_filter, "478000_5630000_correlation_55.tif"))
+
+
+# visualize rasters
+plot(cor_11,  main = "Correlation; window = 11")
+plot(cor_33, main = "Correlation; window = 33")
+plot(cor_55, main = "Correlation; window = 55")
+```
+.  
+  
+Bei einer Fenstergröße von 33 sind die Werte deutlich kleiner als bei 11.  
+Die definierbare Objektgröße liegt also zwischen 11x0,2m = 2,2m und 33x0,2m = 6,6m.  
+Die Veränderung zwischen Größe 33 und 55 ist nur gering.
+
