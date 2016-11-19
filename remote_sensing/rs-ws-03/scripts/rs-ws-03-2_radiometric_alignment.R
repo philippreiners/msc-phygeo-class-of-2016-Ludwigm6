@@ -82,19 +82,10 @@ for(i in 1:6){
 
 saveRDS(res_list, file = paste0(path_target, "rs-ws-03-2_results.rds"))
 
+ergebnis <- readRDS(file = paste0(path_target, "rs-ws-03-2_results.rds"))
 
 
-##########Statistische Tests
-df_c <- as.data.frame(c_line)
-df_n <- as.data.frame(n_line)
-df_c$raster <- as.factor("c")
-df_n$raster <- "n"
-colnames(df_c) <- c("R","G","B","raster")
-colnames(df_n) <- c("R","G","B","raster")
-df_anova <- rbind(df_c, df_n)
-df_anova$raster <- as.factor(df_anova$raster)
-t.test(df_anova$R~ df_anova$raster)
 
-?anova
-hist(df_n[,1])
+
+
 
