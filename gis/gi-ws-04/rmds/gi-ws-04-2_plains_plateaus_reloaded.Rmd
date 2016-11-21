@@ -10,7 +10,7 @@ output: html_document
 # gi-ws-04-1 plain plateau reloaded
 #
 # using system() to operate the SAGA Shell
-
+#
 
 # initialise the script and save all filepaths in a list
 source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/Init.R")
