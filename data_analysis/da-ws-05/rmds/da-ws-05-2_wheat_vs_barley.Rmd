@@ -8,7 +8,7 @@ output: html_document
 ## Wheat vs. Barley
 
 ```{r}
-
+### Part One: Linear Regression
 
 # initialise script and get filepaths
 source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/init.R")
@@ -31,22 +31,27 @@ model <- lm(Winter_barley ~ Winter_wheat)
 plot(Winter_wheat, Winter_barley)
 regLine(model, col = "red")
 
+
+
+
+
 # Normal distribution of residuals
-plot(model, which = 1)
+# Das Histogramm zeigt eine Normalverteilung der Residuen.
+hist(model$residuals, nclass = 100)
 # Heteroscedacity
-plot(model, which = 2)
+# Die recht gleichmäßige Verteilung der Residuen um die Horizontale lässt auf eine gleichmäßige Verteilung der Varianz schließen.
+plot(model, which = 1)
 
 
 
-############# 
+
+### Part Two: Random Samples
 
 # decide level of significance
 alpha <- 0.05
 
-
- 
 # testing 100 samples with 50 values on normal distribution with shapiro wilk test
-# H0: residuals are normal distributed
+# H0: Values are normally distributed ==> p-value below 0.05 ==> Values are not normally distributed
 # set seed for reproducability
 # get 50 random rows from dataframe
 normal_dist_50 <- lapply(seq(100), function(x){
@@ -65,7 +70,7 @@ normal_dist_50 <- lapply(seq(100), function(x){
 
 
 # testing 100 samples with 100 values on normal distribution with shapiro wilk test
-# H0: residuals are normal distributed
+# H0: Values are normally distributed ==> p-value below 0.05 ==> Values are not normally distributed
 # set seed for reproducability
 # get 100 random rows from dataframe
 normal_dist_100 <- lapply(seq(100), function(x){
@@ -96,7 +101,8 @@ for(i in seq(100)){
 print(rejections_50)
 print(rejections_100)
 
-
+# Der Shapiro Wilk Test ist auf Probengrößen kleiner 50 ausgelegt.
+# Wenn Stichproben aus einer Datenmenge als lineare Modelle verarbeitet werden, sollten die Stichprobengrößen zwischen 25 und 40 liegen um diese auf Normalverteilung untersuchen zu können.
 
 
 ```
