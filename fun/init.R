@@ -30,6 +30,7 @@ Init <- function(lecture, lecturenumber){
   
   da <- list(csv = paste0(path_data, "data_analysis/csv/"),
              raw = paste0(path_data, "data_analysis/raw/"),
+             rdata = paste0(path_data, "data_analysis/RData/"),
              temp = paste0(path_data, "data_analysis/temp/"))
   
   # create list with all paths
@@ -63,9 +64,10 @@ Init <- function(lecture, lecturenumber){
   # setting R environ temp folder to the current working directory
   Sys.setenv(TMPDIR = file.path(path_temp))
   
-  # initialise SAGA 3.0.0 shell
+  # initialise SAGA 3.0.0 shell and gdal
   saga_path <- "C:\\Program Files\\SAGA-GIS"
-  Sys.setenv(PATH=paste0(saga_path,";",Sys.getenv("PATH")))
+  gdal_path <- "C:\\Program Files\\QGIS 2.18\\bin"
+  Sys.setenv(PATH=paste0(gdal_path, ";", saga_path,";",Sys.getenv("PATH")))
   
   # return the list of paths
   return(path)

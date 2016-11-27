@@ -68,7 +68,7 @@
 
 
 
-setPathGlobal<- function(filepath_git,csess="01",ccourse="gi", moc=TRUE) {
+setPathGlobal<- function(filepath_git,csess="15",ccourse="gi", moc=TRUE) {
   
   # switch backslash to slash and expand path to full path
   filepath_git<-gsub("\\\\", "/", path.expand(filepath_git))  
@@ -90,9 +90,9 @@ setPathGlobal<- function(filepath_git,csess="01",ccourse="gi", moc=TRUE) {
   # script and function folder for each course session can be adapted 
   session_working_folder<-c("/scripts/", "/rmds/")
   # currently implemented data folders can be adapted 
-  data_working_folder<-list(list("aerial/","aerial_merged/","aerial_croped/","aerial_final/","RData/","temp/","run/","input/"),
+  data_working_folder<-list(list("aerial/","aerial_merged/","aerial_croped/","aerial_final/","RData/","temp/","run/","input/", "saga/"),
                             list("RData/","temp/","run/","input/","output/"),
-                            list("csv/","raw/"))  
+                            list("csv/","raw/", "RData/"))  
   
   if (moc) {
     # static course structure - better keep the below folders
