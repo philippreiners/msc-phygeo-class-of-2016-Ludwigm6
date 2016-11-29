@@ -1,0 +1,170 @@
+# gi-ws-05-2_plain_plateau_gdal_compare_filter
+
+# initialise the script and save all filepaths in a list
+library(gdalUtils)
+library(rgdal)
+library(raster)
+
+source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/Init.R")
+path <- Init("gi", "05")
+
+# use gdalUtils to load DEM and transform it to sdat
+DEM_path <- paste0(path$gi$input, "geonode_las_dtm_01m.tif")
+DEM_saga <- paste0(path$gi$run, "DEM_normal/", "geonode_las_dtm_01m.sdat")
+
+gdalwarp(srcfile = DEM_path, dstfile = DEM_saga, overwrite = TRUE, of = 'SAGA')
+
+###############################################
+# execute SAGA modul 'Slope, Aspect, Curvature'
+# don't forget Space after each text fragment to separate arguments
+
+# choose working directory to input file and as targetpath for output files
+setwd(paste0(path$gi$run, "DEM_normal/"))
+system(paste0("saga_cmd ta_morphometry 0 ",
+              "-ELEVATION=",DEM_saga," ",
+              "-SLOPE=slope ",
+              "-ASPECT=aspect ",
+              "-C_PROF=profil ",
+              "-C_TANG=tangential ",
+              "-C_MINI=minimum ",
+              "-C_MAXI=maximum ",
+              "-METHOD=6 -UNIT_SLOPE=1 -UNIT_ASPECT=1"))
+
+# execute SAGA modul 'Fuzzy Landform Element Classification'
+# SLOPETODEG=1 because slope unit is radian
+parameter_default <- "-T_SLOPE_MIN=5.000000 -T_SLOPE_MAX=15.000000 -T_CURVE_MIN=0.000002 -T_CURVE_MAX=0.000050"
+
+# getting good results with these parameters:
+# slope 68 means a difference of 0.5 m between cells?
+slope_min <- "20"
+slope_max <- "68"
+curve_min <- "0.02"
+curve_max <- "0.5"
+parameter <- paste0("-T_SLOPE_MIN ",slope_min," -T_SLOPE_MAX ",slope_max,
+                    " -T_CURVE_MIN ",curve_min," -T_CURVE_MAX ",curve_max)
+
+
+system(paste0("saga_cmd ta_morphometry 25 ",
+              "-SLOPE slope.sgrd ",
+              "-MINCURV minimum.sgrd ",
+              "-MAXCURV maximum.sgrd ",
+              "-PCURV profil.sgrd ",
+              "-TCURV tangential.sgrd ",
+              "-PLAIN class_plain ",
+              "-FORM class_landform ",
+              "-MEM class_membership ",
+              "-ENTROPY class_entropy ",
+              "-CI class_confusion ",
+              "-SLOPETODEG 0 ",
+              parameter))
+
+# use gdalUtils to convert output to tif
+plain_saga <- paste0(path$gi$run, "DEM_normal/class_plain.sdat")
+plain_tif <- paste0(path$gi$output, "class_plain.tif")
+
+class_saga <- paste0(path$gi$run, "DEM_normal/class_landform.sdat")
+class_tif <- paste0(path$gi$output, "class_landform.tif")
+gdalwarp(srcfile = plain_saga, dstfile = plain_tif, overwrite = TRUE)
+gdalwarp(srcfile = class_saga, dstfile = class_tif, overwrite = TRUE)
+
+plains <- raster(paste0(path$gi$output, "class_plain.tif"))
+classes <- raster(paste0(path$gi$output, "class_landform.tif"))
+
+plot(plains)
+plot(classes)
+#######################################
+
+# filtering of the DEM
+DEM <- raster(DEM_path)
+DEM_filter <- focal(DEM, w = matrix(1,3,3), fun = mean)
+writeRaster(DEM_filter, filename = paste0(path$gi$run, "DEM_filtered/DEM_filter.tif"))
+DEM_filter <- paste0(path$gi$run, "DEM_filtered/DEM_filter.tif")
+
+
+# choose working directory to input file and as targetpath for output files
+setwd(paste0(path$gi$run, "DEM_filtered/"))
+system(paste0("saga_cmd ta_morphometry 0 ",
+              "-ELEVATION=",DEM_filter," ",
+              "-SLOPE=slope ",
+              "-ASPECT=aspect ",
+              "-C_PROF=profil ",
+              "-C_TANG=tangential ",
+              "-C_MINI=minimum ",
+              "-C_MAXI=maximum ",
+              "-METHOD=6 -UNIT_SLOPE=1 -UNIT_ASPECT=1"))
+
+# execute SAGA modul 'Fuzzy Landform Element Classification'
+# SLOPETODEG=1 because slope unit is radian
+# parameter_default <- "-T_SLOPE_MIN=5.000000 -T_SLOPE_MAX=15.000000 -T_CURVE_MIN=0.000002 -T_CURVE_MAX=0.000050"
+
+# getting good results with these parameters:
+# slope 68 means a difference of 0.5 m between cells?
+slope_min <- "20"
+slope_max <- "68"
+curve_min <- "0.02"
+curve_max <- "0.5"
+parameter <- paste0("-T_SLOPE_MIN ",slope_min," -T_SLOPE_MAX ",slope_max,
+                    " -T_CURVE_MIN ",curve_min," -T_CURVE_MAX ",curve_max)
+
+
+system(paste0("saga_cmd ta_morphometry 25 ",
+              "-SLOPE slope.sgrd ",
+              "-MINCURV minimum.sgrd ",
+              "-MAXCURV maximum.sgrd ",
+              "-PCURV profil.sgrd ",
+              "-TCURV tangential.sgrd ",
+              "-PLAIN class_plain ",
+              "-FORM class_landform ",
+              "-MEM class_membership ",
+              "-ENTROPY class_entropy ",
+              "-CI class_confusion ",
+              "-SLOPETODEG 0 ",
+              parameter))
+
+# use gdalUtils to convert output to tif
+plain_saga <- paste0(path$gi$run, "DEM_filtered/class_plain.sdat")
+plain_tif <- paste0(path$gi$output, "class_plain_filter.tif")
+
+class_saga <- paste0(path$gi$run, "DEM_filtered/class_landform.sdat")
+class_tif <- paste0(path$gi$output, "class_landform_filter.tif")
+gdalwarp(srcfile = plain_saga, dstfile = plain_tif, overwrite = TRUE)
+gdalwarp(srcfile = class_saga, dstfile = class_tif, overwrite = TRUE)
+
+plains <- raster(paste0(path$gi$output, "class_plain_filter.tif"))
+classes <- raster(paste0(path$gi$output, "class_landform_filter.tif"))
+plot(plains)
+plot(classes)
+
+
+
+########## End of command line part ############
+
+library(raster)
+
+# initialise the script and save all filepaths in a list
+source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/Init.R")
+path <- Init("gi", "05")
+
+# load results
+plains_no_filter <- raster(paste0(path$gi$output, "class_plain.tif"))
+plains_DEM_filter <- raster(paste0(path$gi$output, "class_plain_filter.tif"))
+
+
+
+# filter the unfiltered
+plains_post_filter <- focal(plains_no_filter, w = matrix(1,7,7), fun = modal)
+writeRaster(plains_post_filter, filename = paste0(path$gi$output, "class_plains_postfilter.tif"))
+
+par(mfrow = c(1,3))
+titles <- c("plains_no_filter", "plains_DEM_filter", "plains_post_filter")
+# reclassify as plain or plateau using the DEM and show results
+DEM <- raster(paste0(path$gi$input, "geonode_las_dtm_01m.tif"))
+for(i in c(plains_no_filter, plains_DEM_filter, plains_post_filter)){
+  i[i == 1 & DEM < 250] <- 1
+  i[i == 1 & DEM >= 250] <- 2
+  plot(i)
+}
+ 
+
+
+
