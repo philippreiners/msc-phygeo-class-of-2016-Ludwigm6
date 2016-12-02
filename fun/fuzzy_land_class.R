@@ -31,7 +31,6 @@ classify <- function(DEM,
                 "-MAXCURV ",pre,"maximum.sgrd ",
                 "-PCURV ",pre,"profil.sgrd ",
                 "-TCURV ",pre,"tangential.sgrd ",
-                "-PLAIN ",pre,"class_plain ",
                 "-FORM ",pre,"class_landform ",
                 "-MEM ",pre,"class_membership ",
                 "-ENTROPY ",pre,"class_entropy ",
@@ -42,14 +41,10 @@ classify <- function(DEM,
                 "-T_CURVE_MIN=",T_CURVE_MIN, " ",
                 "-T_CURVE_MAX=",T_CURVE_MAX))
   
-  gdalwarp(srcfile = paste0(work_dir, pre,"class_plain.sdat"),
-           dstfile = paste0(output_dir, pre,"class_plain.tif"),
-           overwrite = TRUE)
+  
   gdalwarp(srcfile = paste0(work_dir, pre,"class_landform.sdat"), 
            dstfile = paste0(output_dir, pre,"class_landform.tif"), 
            overwrite = TRUE)
-  plains <- raster(paste0(output_dir, pre,"class_plain.tif"))
-  landform <-raster(paste0(output_dir, pre,"class_landform.tif"))
-  
-  return(list(landform = landform, plains = plains))
+  landform <- raster(paste0(output_dir, pre,"class_landform.tif"))
+  return(landform)
 }
