@@ -1,4 +1,18 @@
-# Saga Fuzzy Land Classification
+# # # # SAGA Fuzzy Landform Element Classification # # # #
+#
+# runs the SAGA modules 'Slope, Aspect, Curavture' and 'Fuzzy Landform Element Classification'
+# to create the landform classification out of a DEM
+#
+# # # Inputs # # #
+# DEM: filepath to the elevation model [.tif]
+# work_dir: directory for the 'temporary' rasters like slope etc [.sdat]
+# output_dir: directory for the output raster landform [.tif]
+# pre: prefix for all created data to prevent overwriting of existing files and repeatability
+# T_SLOPE_MIN, T_SLOPE_MAX, T_CURVE_MIN, T_CURVE_MAX: parameters for FLEC as Text
+#
+# # # Output # # #
+# landform raster as [.tif] in the output directory and as a raster layer in R
+#
 
 classify <- function(DEM,
                      work_dir,

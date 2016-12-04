@@ -1,0 +1,227 @@
+---
+title: "gi-ws-05-3"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rüggeberg"
+date: "4 Dezember 2016"
+output: html_document
+---
+
+## gi-ws-05-3 plains vs. plateaus
+
+#### workflow:
+
+1. DEM einlesen
+2. Parameter definieren
+3. DEM filtern (mean) 
+4. Slope, Aspect, Curvature von beidem berechnen
+5. Fuzzy Landform Element Classification für beide durchführen
+6. Ungefilterte Klassifikation modal filtern
+7. Als Plain oder Plateau reklassifizieren je nach Höhe im DEM
+    + Ungefiltert
+    + Mean Filter
+    + Modal Filter
+
+Strukturierung: Alle Konvertierungen und SAGA Module mittels einer Funktion erledigen  
+So können übersichtlich mehrere DEM-tifs über eine Schleife ausgewertet werden.
+
+Funktion muss leisten:  
+* Einlesen eines DEM-tifs  
+* Konvertierung mittels gdal in SAGA Format  
+* Ausführen der SAGA Module  
+* Durch einen Präfix überschreiben verhindern und so mehrere Dateien abarbeiten  
+* Erzeugen eines Output-tifs mittels gdal  
+* den Output in der aktuellen R-Session verfügbar machen  
+
+```{r, eval = FALSE}
+# gi-ws-05-3 classify plains and plateaus with a real structure using a function
+
+library(gdalUtils)
+library(rgdal)
+library(raster)
+
+# Initialise script; set filepaths and set system variables for SAGA and GDAL
+source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/Init.R")
+path <- Init("gi", "05")
+
+# get a list of the available functions
+list.files(pattern = "[.]R$", path = path$fun, full.names = FALSE)
+# source script for classification
+source(paste0(path$fun, "fuzzy_land_class.R"))
+
+# create filtered DEM with focal filter
+DEM <- raster(paste0(path$gi$input, "geonode_las_dtm_01m.tif"))
+DEM_filter <- focal(DEM, w = matrix(1,3,3), fun = mean)
+writeRaster(DEM_filter, filename = paste0(path$gi$input, "geonode_las_dtm_01m_filter.tif"), overwrite = TRUE)
+
+
+# # # # Set parameters for classification # # # #
+DEM_paths <- c(paste0(path$gi$input, "geonode_las_dtm_01m.tif"),
+               paste0(path$gi$input, "geonode_las_dtm_01m_filter.tif"))
+# set prefixes for different DEMs to prevent overwriting files in the function
+prefix <- c("norm_", "filt_")
+# set patameters for 'Fuzzy Landform Element Classification'
+slope_min <- "3"
+slope_max <- "10"
+curve_min <- "0.00000001"
+curve_max <- "0.0001"
+
+
+# # # # Use the sourced function to classify the normal and filtered DEM # # # #
+#
+# the function runs the SAGA module 'Slope, Aspect, Curvature' to create the input rasters
+# for the module 'Fuzzy Landform Element Classification'
+# output is the raster 'landform' from 'Fuzzy Landform Element Classificaton'
+# plains have a value of 100 in the output raster
+
+landforms <- lapply(seq(2), function(i){
+  
+  classify(DEM = DEM_paths[i],
+           work_dir = path$gi$run,
+           output_dir = path$gi$output,
+           pre = prefix[i],
+           T_SLOPE_MIN = slope_min,
+           T_SLOPE_MAX = slope_max,
+           T_CURVE_MIN = curve_min,
+           T_CURVE_MAX = curve_max)
+})
+
+# save classified landform in rasters
+landform_norm <- landforms[[1]]
+landform_filt <- landforms[[2]]
+
+# modal filter with the unfiltered classification
+landform_mod_filt <- focal(landform_norm, w = matrix(1,7,7), fun = modal)
+writeRaster(landform_mod_filt, filename = paste0(path$gi$output, "landform_mod_filt.tif"))
+
+
+# Reclassify as plains or plateaus based on height of the DEM
+reclass <- lapply(c(landform_norm,
+                    landform_filt,
+                    landform_mod_filt), function(landform){
+  landform <- reclassify(landform, c(0,99,0, 99,100,1,100,200,0 ))                    
+  landform[landform == 1 & DEM < 250] <- 1
+  landform[landform == 1 & DEM >= 250] <- 2
+  return(landform)
+})
+
+# Show results
+plot(reclass[[1]], sub = "yellow = plain; green = plateau")
+title("P&P unfiltered")
+
+plot(reclass[[2]], sub = "yellow = plain; green = plateau")
+title("P&P DEM filter")
+
+plot(reclass[[3]], sub = "yellow = plain; green = plateau")
+title("P&P modal filter")
+```
+
+## Show results
+```{r}
+
+# Initialise script again for the RMD
+library(raster)
+
+source("D:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/Init.R")
+path <- Init("gi", "05")
+
+# load data again for the RMD
+DEM <- raster(paste0(path$gi$input, "geonode_las_dtm_01m.tif"))
+landform_norm <- raster(paste0(path$gi$output, "norm_class_landform.tif"))
+landform_filt <- raster(paste0(path$gi$output, "filt_class_landform.tif"))
+landform_mod_filt <- raster(paste0(path$gi$output, "landform_mod_filt.tif"))
+
+# Reclassify as plains or plateaus based on height of the DEM
+reclass <- lapply(c(landform_norm,
+                    landform_filt,
+                    landform_mod_filt), function(landform){
+  # reclass as plains (value 100) and no-plains (all other values)                    
+  landform <- reclassify(landform, c(0,99,0, 99,100,1,100,200,0 ))  
+  # reclass as plain or plateau
+  landform[landform == 1 & DEM < 250] <- 1
+  landform[landform == 1 & DEM >= 250] <- 2
+  return(landform)
+})
+
+# Show results
+plot(reclass[[1]], sub = "yellow = plain; green = plateau")
+title("P&P unfiltered")
+# evaluation: many artifacts and fragmented areas 
+
+plot(reclass[[2]], sub = "yellow = plain; green = plateau")
+title("P&P DEM filter")
+# evaluation: many artifacts, visible lines (maybe height lines? slope parameter too low?)
+
+plot(reclass[[3]], sub = "yellow = plain; green = plateau")
+title("P&P modal filter")
+# evaluation: nearly no artifacts but unrealistic plateau sizes
+# best would be a combination of both filters
+```
+
+## Function 'classify'
+```{r, eval = FALSE}
+# # # # SAGA Fuzzy Landform Element Classification # # # #
+#
+# runs the SAGA modules 'Slope, Aspect, Curavture' and 'Fuzzy Landform Element Classification'
+# to create the landform classification out of a DEM
+#
+# # # Inputs # # #
+# DEM: filepath to the elevation model [.tif]
+# work_dir: directory for the 'temporary' rasters like slope etc [.sdat]
+# output_dir: directory for the output raster landform [.tif]
+# pre: prefix for all created data to prevent overwriting of existing files and repeatability
+# T_SLOPE_MIN, T_SLOPE_MAX, T_CURVE_MIN, T_CURVE_MAX: parameters for FLEC as Text
+#
+# # # Output # # #
+# landform raster as [.tif] in the output directory and as a raster layer in R
+#
+
+classify <- function(DEM,
+                     work_dir,
+                     output_dir,
+                     pre,
+                     T_SLOPE_MIN,
+                     T_SLOPE_MAX,
+                     T_CURVE_MIN,
+                     T_CURVE_MAX){
+  library(gdalUtils)
+  library(raster)
+  
+  gdalwarp(srcfile = DEM, dstfile = paste0(work_dir, pre, "DEM.sdat"), overwrite = TRUE, of = 'SAGA')
+  
+  setwd(work_dir)
+  system(paste0("saga_cmd ta_morphometry 0 ",
+                "-ELEVATION=",pre,"DEM.sdat ",
+                "-SLOPE=",pre,"slope ",
+                "-ASPECT=",pre,"aspect ",
+                "-C_PROF=",pre,"profil ",
+                "-C_TANG=",pre,"tangential ",
+                "-C_MINI=",pre,"minimum ",
+                "-C_MAXI=",pre,"maximum ",
+                "-METHOD=6 -UNIT_SLOPE=1 -UNIT_ASPECT=1"))
+  
+  
+  system(paste0("saga_cmd ta_morphometry 25 ",
+                "-SLOPE ",pre,"slope.sgrd ",
+                "-MINCURV ",pre,"minimum.sgrd ",
+                "-MAXCURV ",pre,"maximum.sgrd ",
+                "-PCURV ",pre,"profil.sgrd ",
+                "-TCURV ",pre,"tangential.sgrd ",
+                "-FORM ",pre,"class_landform ",
+                "-MEM ",pre,"class_membership ",
+                "-ENTROPY ",pre,"class_entropy ",
+                "-CI ",pre,"class_confusion ",
+                "-SLOPETODEG 0 ",
+                "-T_SLOPE_MIN=",T_SLOPE_MIN, " ",
+                "-T_SLOPE_MAX=",T_SLOPE_MAX, " ",
+                "-T_CURVE_MIN=",T_CURVE_MIN, " ",
+                "-T_CURVE_MAX=",T_CURVE_MAX))
+  
+  
+  gdalwarp(srcfile = paste0(work_dir, pre,"class_landform.sdat"), 
+           dstfile = paste0(output_dir, pre,"class_landform.tif"), 
+           overwrite = TRUE)
+  landform <- raster(paste0(output_dir, pre,"class_landform.tif"))
+  return(landform)
+}
+
+```
+
