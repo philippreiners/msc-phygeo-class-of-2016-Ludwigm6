@@ -25,6 +25,7 @@ Init <- function(lecture, lecturenumber){
   gi <- list(input = paste0(path_data, "gis/input/"),
              output = paste0(path_data, "gis/output/"),
              rdata = paste0(path_data, "gis/RData/"),
+             saga = paste0(path_data, "gis/saga/"),
              run = paste0(path_data, "gis/run/"),
              temp = paste0(path_data, "gis/temp/"))
   
