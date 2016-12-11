@@ -1,0 +1,169 @@
+---
+title: "gi-ws-06-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "11 Dezember 2016"
+output: html_document
+---
+
+## Local drainage direction
+
+#### Vorueberlegungen:
+- Das DEM sollte um das Gebiet 477782.77, 5632175.60 zugeschnitten werden
+- Welche Module geben das Einzugsgebiet aus?
+    + Welche Inputs werden dafür benötigt?
+    + Werden dafür weitere Module benötigt?
+    
+    
+```{r, eval = FALSE}
+
+# Initialize script
+source("d:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/init.R")
+path <- Init("gi", "06")
+
+library(raster)
+library(gdalUtils)
+library(scales)
+
+# source SAGA Toolchain
+source(paste0(path$fun, "fun_analyze_hydro.R"))
+
+########################################
+# Cutting the DEM to get area of interest
+DEM_full <- raster(paste0(path$gi$input, "geonode_las_dtm_01m.tif")) 
+
+plot(DEM_full)
+points(477782.77, 5632175.60)
+
+# Getting the part around the marked spot
+DEM_cut <- crop(DEM_full, c(477782-1000, 477782+1000, 5632175-1000, 5632175+1000))
+plot(DEM_cut)
+writeRaster(DEM_cut, filename = paste0(path$gi$run, "geonode_las_dtm_01m_cut.tif"), overwrite = TRUE)
+
+##########################################
+
+# # # Initialize SAGA modules # # #
+
+# directory for new files
+workdir <- paste0(path$gi$saga, "hydrology/")
+# path to DEM
+DEM <- paste0(path$gi$run, "geonode_las_dtm_01m_cut.tif")
+# min_slope value for the Fill Sink module
+sink_min_slope <- "0.00085"
+# strahler order for channel network module
+channels_threshold <- "7"
+
+# # # run SAGA modules # # #
+hydrology <- analyze_hydro(DEM = DEM,
+                            workdir = workdir,
+                            sink_min_slope = sink_min_slope,
+                            channels_threshold = channels_threshold)
+summary(hydrology)
+
+# show results
+plot(DEM_cut, ext = c(476782, 478782, 5632000, 5633175), main = "DEM with watershed and channels near Caldern")
+plot(hydrology$watershed, col = alpha("grey", 0.2), add = TRUE)
+plot(hydrology$channels, col = "blue", add = TRUE)
+
+plot(hydrology$spi, main = "Stream Power Index")
+
+
+
+```
+## Show result
+```{r, include = FALSE}
+# Redundant code because of markdown #
+library(raster)
+library(rgdal)
+library(scales)
+workdir <- "D:/university/data/gis/saga/hydrology/"
+hydrology <- list(channels = readOGR(paste0(workdir, "channels.shp")),
+                 watershed = readOGR(paste0(workdir, "watershed_basins.shp")),
+                 spi = raster(paste0(workdir, "stream_power_index.tif")),
+                 filepath = workdir)
+DEM_cut <- raster("d:/university/data/gis/run/geonode_las_dtm_01m_cut.tif")
+```
+
+```{r}
+plot(DEM_cut, ext = c(476782, 478782, 5632000, 5633175), main = "DEM with watershed and channels near Caldern")
+plot(hydrology$watershed, col = alpha("grey", 0.2), add = TRUE)
+plot(hydrology$channels, col = "blue", add = TRUE)
+
+plot(hydrology$spi, main = "Stream Power Index")
+```
+
+Der Algorithmus berechnet aus dem DEM als tif das Gewässernetzwerk, Wasserscheiden/Einzugsgebiete und den Stream Power Index.  
+Dazu wird das tif mit gdalwarp in sgrd formatiert und mit dem Modul Fill Sinks (Wang & Liu) das DEM vorbearbeitet.  
+Das Modul Channel Network and Drainage Basins benötigt das 'sinkfreie' DEM und gibt Shapedateien des Gewässernetzwerks und den Einzugsgebieten aus.  
+***  
+Nach mehreren durchlaeufen mit verschiedenen Parametern sind immernoch wenige Artefakte vorhanden und sowohl Lahn als auch der kleine Bach werden "abgeschnitten".  
+Müsste das Einzugsgebiet nicht bis zur höchsten Stelle im DEM reichen? (grüne Gebiete in der Abbildung)
+
+
+## Content of the function 'fun_analyze_hydro'
+```{r, eval = FALSE}
+
+analyze_hydro <- function(DEM, workdir, sink_min_slope, channels_threshold){
+ 
+  library(gdalUtils)
+  library(rgdal)
+  library(raster)
+  # Create output- and workfolder
+  if(!file.exists(file.path(workdir))){
+    dir.create(file.path(workdir), recursive = TRUE)
+  }
+  setwd(workdir)
+  
+  # 0.5 convert tif to SAGA Format
+  gdalwarp(srcfile = DEM, dstfile = paste0(workdir, "DEM.sdat"), overwrite = TRUE, of = 'SAGA')
+  
+  # 1. Preprocessing the DEM: Fill Sinks (Wang & Liu)
+  system(paste0("saga_cmd ta_preprocessor 4 ",
+                "-ELEV=DEM.sdat ",
+                "-FILLED=DEM_no_sinks.sdat ",
+                "-FDIR=flow_direction.sdat ",
+                "-WSHED=watershed.sdat ",
+                "-MINSLOPE=",sink_min_slope))
+  
+  # 2. Channel Network and Drainage Basins
+  system(paste0("saga_cmd ta_channels 5 ",
+                "-DEM=DEM_no_sinks.sdat ", 
+                "-DIRECTION=flow_direction_channels.sdat ", 
+                "-BASIN=drainage_basins.sdat ",
+                "-SEGMENTS=channels.shp ", 
+                "-BASINS=watershed_basins.shp ", 
+                "-NODES=nodes.shp ", 
+                "-THRESHOLD=",channels_threshold))
+  
+  
+  # 3. Stream Power Index
+  # 3.1 Slope, Aspect, Curvature
+  system(paste0("saga_cmd ta_morphometry 0 ",
+                "-ELEVATION=DEM_no_sinks.sdat ",
+                "-SLOPE=slope.sdat ",
+                "-METHOD=6 -UNIT_SLOPE=0 -UNIT_ASPECT=0"))
+  
+  # 3.2 Stream Power Index
+  system(paste0("saga_cmd ta_hydrology 21 ",
+                "-SLOPE=slope.sdat ",
+                "-AREA=watershed.sgrd ",
+                "-SPI=stream_power_index.sdat ",
+                "-CONV=0"))
+  
+  
+  # 3.3 Convert to tif
+  gdalwarp(srcfile = paste0(workdir, "stream_power_index.sdat"), dstfile = paste0(workdir, "stream_power_index.tif"), overwrite = TRUE, of = 'GTiff')
+  
+  
+  
+  output <- list(channels = readOGR(paste0(workdir, "channels.shp")),
+                 watershed = readOGR(paste0(workdir, "watershed_basins.shp")),
+                 spi = raster(paste0(workdir, "stream_power_index.tif")),
+                 filepath = workdir)
+  
+  return(output)
+  
+}
+
+
+
+```
