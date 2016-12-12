@@ -7,6 +7,7 @@ output: html_document
 
 ## Local drainage direction
 
+
 #### Vorueberlegungen:
 - Das DEM sollte um das Gebiet 477782.77, 5632175.60 zugeschnitten werden
 - Welche Module geben das Einzugsgebiet aus?
@@ -107,6 +108,7 @@ analyze_hydro <- function(DEM, workdir, sink_min_slope, channels_threshold){
   library(gdalUtils)
   library(rgdal)
   library(raster)
+  
   # Create output- and workfolder
   if(!file.exists(file.path(workdir))){
     dir.create(file.path(workdir), recursive = TRUE)
