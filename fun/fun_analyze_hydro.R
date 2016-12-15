@@ -1,10 +1,11 @@
 # fun: Hydrological properties of a DEM
 
-analyze_hydro <- function(DEM, workdir, sink_min_slope = "0.1", channels_threshold){
+analyze_hydro <- function(DEM, workdir, sink_min_slope = "0.1", channels_threshold = "5"){
  
   library(gdalUtils)
   library(rgdal)
   library(raster)
+  
   # Create output- and workfolder
   if(!file.exists(file.path(workdir))){
     dir.create(file.path(workdir), recursive = TRUE)
@@ -32,24 +33,25 @@ analyze_hydro <- function(DEM, workdir, sink_min_slope = "0.1", channels_thresho
                 "-NODES=nodes.shp ", 
                 "-THRESHOLD=",channels_threshold))
   
-  
-  # 3. Stream Power Index
-  # 3.1 Slope, Aspect, Curvature
-  #system(paste0("saga_cmd ta_morphometry 0 ",
-  #              "-ELEVATION=DEM_no_sinks.sdat ",
-  #              "-SLOPE=slope.sdat ",
-  #              "-METHOD=6 -UNIT_SLOPE=0 -UNIT_ASPECT=0"))
-  
-  # 3.2 Stream Power Index
-  #system(paste0("saga_cmd ta_hydrology 21 ",
-  #              "-SLOPE=slope.sdat ",
-  #              "-AREA=watershed.sgrd ",
-  #              "-SPI=stream_power_index.sdat ",
-  #              "-CONV=0"))
+  # 3. Catchment area
+  system(paste0("saga_cmd garden_learn_to_program 7 ",
+                " -ELEVATION=DEM_no_sinks.sgrd ",
+                " -AREA=catchmentarea.sgrd ",
+                " -METHOD=0"))
   
   
-  # 3.3 Convert to tif
-  #gdalwarp(srcfile = paste0(workdir, "stream_power_index.sdat"), dstfile = paste0(workdir, "stream_power_index.tif"), overwrite = TRUE, of = 'GTiff')
+
+  
+  # Convert every sgrd to tif
+  i <- 1
+  files_path <- list.files(path = workdir, pattern = "*.sgrd", full.names = TRUE)
+  files_name <- list.files(path = workdir, pattern = "*.sgrd", full.names = FALSE)
+  files_name <- substr(files_name, 1, nchar(files_name)-5)
+  
+  for(i in length(files_path)){
+    gdalwarp(srcfile = files_path[i], dstfile = paste0(workdir, files_name[i], ".tif"), overwrite = TRUE, of = 'GTiff')  
+  }
+  
   
   
   
