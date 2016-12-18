@@ -11,15 +11,15 @@ hy_basic_analysis <- function(DEM_path, workdir, sink_min_slope = "0.1"){
   if(!file.exists(file.path(workdir))){
     dir.create(file.path(workdir), recursive = TRUE)
   }
-  setwd(paste0(workdir))
+  setwd(workdir)
   
   # if the function already were executet, just read the output RDS
-  if(file.exists(paste0(path$gi$saga, "hydrology/hy_results.rds"))){
+  if(file.exists(paste0(workdir, "hy_results.rds"))){
     
     res <- readRDS(paste0(workdir, "hy_results.rds"))
     return(res)
     
-  # if there is no hy_results.rds in the workdirectory, execute SAGA Moduls  
+  # if there is no hy_results.rds in the work directory, execute SAGA Moduls  
   }else{
     
     # 1. convert tif to SAGA Format
@@ -41,7 +41,6 @@ hy_basic_analysis <- function(DEM_path, workdir, sink_min_slope = "0.1"){
                   " -METHOD=0"))
     
     
-    workdir <- paste0(path$gi$saga, "hydrology/")
     # Last: convert output to tif
     # task: files besser in liste ordnen; liste benennen
     output <- list.files(workdir, pattern = "*.sgrd", full.names = TRUE)
