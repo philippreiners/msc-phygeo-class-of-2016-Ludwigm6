@@ -42,6 +42,7 @@ path$hydro <- paste0(path$gi$run, "hydrology/")
 path$two <- paste0(path$gi$run, "two_cells/")
 path$sim <- paste0(path$gi$run, "overland_flow/")
 
+# maybe create folders
 #dir.create(path$hydro)
 #dir.create(path$two)
 #dir.create(path$sim)
