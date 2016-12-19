@@ -114,15 +114,24 @@ sim_two_cells <- hy_overland_flow(DEM_path = paste0(path$two, "two_cell.sgrd"),
                                   steps = "1",
                                   roughness = "0")
 
-# simulation with catchment area
-sim_catchment <- hy_overland_flow(DEM_path = paste0(path$sim, "DEM_gauge.sgrd"),
-                                  gauges_path = paste0(path$sim, "gauge.shp"),
-                                  workdir = path$sim,
-                                  time = "24",
-                                  steps = "0.1")
+# simulation with catchment area for three different time steps
+timesteps <- c("0.1", "0.5", "1")
 
+sim_catchment <- lapply(timesteps, function(x){
+  output_dir <- paste0(path$sim, x, "/")
+  
+  hy_overland_flow(DEM_path = paste0(path$sim, "DEM_gauge.sgrd"),
+                   gauges_path = paste0(path$sim, "gauge.shp"),
+                   workdir = output_dir,
+                   time = "24",
+                   steps = x)
+  
+})
+names(sim_catchment) <- timesteps
 
-View(sim_catchment$gauges_flow)
-plot(sim_catchment$overland_flow)
+# save results
+saveRDS(sim_two_cells, file = paste0(path$gi$run, "sim_two_cells.rds"))
+saveRDS(sim_catchment, file = paste0(path$gi$run, "sim_catchment.rds"))
+
 
 
