@@ -1,3 +1,12 @@
+---
+title: "da-ws-08-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "19 Dezember 2016"
+output: html_document
+---
+
+
+```{r}
 # da-ws-08-1 tune your model
 # aim: find the number of k for gam which suits best for this data set
 
@@ -41,12 +50,15 @@ results <- lapply(seq(3,13), function(k){
   # transform the list with 100 one-row-dataframes to one dataframe with 100 row
   iterations <- do.call("rbind", iterations)
   
+  # normalize RMSE
+  rmse <- iterations$rmse / max(iterations$rmse)
+  
   # return the number of k, the mean rmse and adjR of the 100 cv, and rmse +- its sd 
   # to the list 'results'
   return(data.frame(k = k,
-                    m_rmse = mean(iterations$rmse),
-                    rmse_p_sd = mean(iterations$rmse)+sd(iterations$rmse),
-                    rmse_m_sd = mean(iterations$rmse)-sd(iterations$rmse),
+                    m_rmse = mean(rmse),
+                    rmse_p_sd = mean(rmse)+sd(rmse),
+                    rmse_m_sd = mean(rmse)-sd(rmse),
                     m_adjR = mean(iterations$adjR)))
 })
 # transform the list with 100 one-row-dataframes to one dataframe with 100 row
@@ -54,33 +66,29 @@ results <- do.call("rbind", results)
 
 # show results
 
-
-
 plot(results$k, results$m_rmse,
      type = "l",
-     ylim = c(min(results$m_adjR)*1000,
-              max(results$rmse_p_sd)),
+     ylim = c(0,1),
      xlim = c(3,13),
      xaxt = "n",
      xlab = "Number of k",
-     ylab = " ",
-     bty = "L")
+     ylab = " ")
 
 
 axis(1, at = seq(3,13))
 
 lines(results$k, results$rmse_p_sd, col = "blue")
 lines(results$k, results$rmse_m_sd, col = "blue")
-lines(results$k, results$m_adjR*1000, col = "red")
+lines(results$k, results$m_adjR, col = "red")
 
 legend(x = "bottom",
        col = c("red", "black", "blue"),
-       legend = c("adjR * 1000", "RMSE", "RMSE+-sd"),
+       legend = c("adjR", "rmse", "rmse +- sd"),
        xpd = TRUE,
        inset = c(0,0),
        bty = "n",
-       pch = 1)
+       pch = 16,
+       ncol = 3)
 
-legend("bottom", c("IM", "IBD", "1R", "2R"), xpd = TRUE, horiz = TRUE,
-       inset = c(0, 0), bty = "n", pch = c(4, 2, 15, 19), col = 1:4, cex = 2)
+```
 
