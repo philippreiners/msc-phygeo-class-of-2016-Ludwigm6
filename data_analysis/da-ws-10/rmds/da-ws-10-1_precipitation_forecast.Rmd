@@ -94,7 +94,8 @@ lines(pred_ts-pred_se, col = "blue")
 
 # auto arima
 plot(forecast(auto_mod), main = "Auto Arima (2,0,2)", ylab  = "Precipitation")
-
+lines(prec_ts, col = "black")
 
 ```
 
+RMSE und AIC sind in einem ähnlichen Bereich und lassen keine Schlussfolgerung auf ein besseres Modell zu, allerdings ist in der Grafik das Auto-Arima Modell deutlich besser.
