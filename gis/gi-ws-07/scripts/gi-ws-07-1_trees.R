@@ -7,6 +7,7 @@ path <-  fun_init("gi", "07")
 library(raster)
 library(gdalUtils)
 library(rgdal)
+library(scales)
 
 # # # parameters and paths# # # 
 # window size for mean filter
@@ -98,6 +99,15 @@ coordinates(tree_coords) <- ~ V1 + V2
 projection(tree_coords) <- projection(poly_trees)
 
 writeOGR(tree_coords, dsn = paste0(path$trees, "tree_points.shp"), driver = "ESRI Shapefile", layer = "trees")
+tree_points <- readOGR(paste0(path$trees, "tree_points.shp"))
+
 
 # Number of trees in MUF:
 print(nrow(poly_trees@data))
+
+plot(DEM)
+points(tree_points, pch = ".", col = alpha("black", alpha = 0.4))
+
+
+
+

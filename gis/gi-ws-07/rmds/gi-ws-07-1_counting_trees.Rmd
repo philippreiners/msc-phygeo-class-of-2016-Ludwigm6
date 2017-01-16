@@ -16,7 +16,7 @@ library(gdalUtils)
 library(rgdal)
 
 # # # parameters and paths# # # 
-# window size for mean filter
+# window size for max filter
 w_size <- 5
 
 # create directory for comming steps and files
@@ -109,13 +109,25 @@ writeOGR(tree_coords, dsn = paste0(path$trees, "tree_points.shp"), driver = "ESR
 ```
 
 ## Show results
-```{r}
+```{r, include = FALSE}
+library(raster)
 library(rgdal)
+library(scales)
+```
 
+```{r}
+DEM <- raster("d:/university/data/gis/input/lidar_dem_01m.tif")
 # load polygon trees
 trees <- readOGR("D:/university/data/gis/run/trees/tree_points.shp")
 # Number of trees in MUF:
 print(nrow(trees@data))
 
-plot(trees)
+
+plot(DEM)
+points(trees, pch = ".", col = alpha("black", alpha = 0.4))
 ```
+***  
+Als erste Schätzung ist das Ergebnis Ok, da die meisten Bäume auch wirklich in Gebieten erkannt werden, die offensichtlich Wälder sind. Um die Artefakte außerhalb der Wälder zu bereinigen könnte man das Ergebniss mit einer Landnutzungsklassifikation filtern. Außerdem könnte man höhe und breite der Bäume im Modell (Filtergröße) dynamisch an diese Klassifikation je nach Waldart anpassen.  
+***  
+***  
+Inspirationsquelle: http://dominoc925.blogspot.de/2012/03/counting-trees-using-segmentation-and.html
