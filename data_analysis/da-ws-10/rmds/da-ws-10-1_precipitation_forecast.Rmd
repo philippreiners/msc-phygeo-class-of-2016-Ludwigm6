@@ -1,7 +1,16 @@
-# da-ws-10-1 precipitation forecast
+---
+title: "da-ws-10-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "16 Januar 2017"
+output: html_document
+---
 
+## Precipitation forecast
+```{r, include = FALSE}
 library(forecast)
+```
 
+```{r}
 # initialise script
 source("d:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/init.R")
 path <-  fun_init("da", "10")
@@ -23,7 +32,9 @@ test <- prec[prec$date >= 201401,]
 # create data frame with all possible parameter combinations
 parameters <- expand.grid(p = seq(0,5), d = seq(0,2), q = seq(0, 5), ps = seq(0, 2), ds = seq(0, 2), qs = seq(0, 2))
 
+```
 
+```{r, eval = FALSE}
 # # # arima model with all parameter combinations # # #
 res <- lapply(seq(nrow(parameters)), function(x){
   mod <- arima(train$prec,
@@ -39,7 +50,9 @@ res <- lapply(seq(nrow(parameters)), function(x){
 # save results
 saveRDS(res, file = paste0(path$da$RData, "precipitation_model.RDS"))
 # # #
+```
 
+```{r}
 # load results to save computation time
 res <- readRDS(paste0(path$da$RData, "precipitation_model.RDS"))
 res <- do.call("rbind", res)
@@ -74,7 +87,7 @@ prec_ts <- ts(prec$prec, start = c(2006, 7), end = c(2015, 12), frequency = 12)
 pred_ts <- ts(best_pred$pred, start = c(2014, 1), end = c(2015, 12), frequency = 12)
 pred_se <- ts(best_pred$se, start = c(2014, 1), end = c(2015, 12), frequency = 12)
 
-plot(prec_ts, main = "Predicted Model", ylab = "Precipitation")
+plot(prec_ts, main = "Arima (3,1,1)(0,0,0)", ylab = "Precipitation")
 lines(pred_ts, col = "red")
 lines(pred_ts+pred_se, col = "blue")
 lines(pred_ts-pred_se, col = "blue")
@@ -83,4 +96,5 @@ lines(pred_ts-pred_se, col = "blue")
 plot(forecast(auto_mod), main = "Auto Arima (2,0,2)", ylab  = "Precipitation")
 
 
+```
 
