@@ -1,0 +1,105 @@
+---
+title: "da-ws-11-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "23 Januar 2017"
+output: html_document
+---
+Frage: Falls die Verteilung von positiv-negativ nicht 50/50 ist wie in diesem Fall, muss das bei der Zufälligkeit berücksichtigt werden?
+
+```{r, include=FALSE}
+
+# da-ws-11-1 comparison of local meteorological time series with global teleconnection indices
+library(forecast)
+library(timeDate)
+```
+
+```{r}
+# data
+source("D:/university/msc-phygeo-Gruppenrepositories/msc-phygeo-class-of-2016-Loudttec/fun/init.R")
+path <- Init("da","11")
+ts_coelbe <- read.table("D:/university/data/data_analysis/csv/dwd/produkt_monat_Monatswerte_19460101_20141231_03164.txt", 
+                  header = TRUE, sep = ";")
+NAO <- read.table("D:/university/data/data_analysis/csv/dwd/nao_norm_1950-2000.txt",
+                         header = TRUE, dec = ".")
+
+# set time frame
+ts_coelbe$Date <- substr(ts_coelbe$MESS_DATUM_BEGINN, 1, 6)
+ts_coelbe <- ts_coelbe[ts_coelbe$Date>=195001 & ts_coelbe$Date<=199012,]
+ts_coelbe <- ts_coelbe[(1:492),]
+ts_coelbe$year <- substr(ts_coelbe$Date, 1, 4)
+ts_coelbe$month <- substr(ts_coelbe$Date, 5, 6)
+
+```
+### Part 1: Trends in Temperature
+```{r}
+# trend of air temperature between 1950 and 1990
+ts_coelbe$Date <- strptime(paste(ts_coelbe$Date, "010000"), format = "%Y%m%d%H%M", tz = "UTC")
+plot(ts_coelbe$Date, ts_coelbe$LUFTTEMPERATUR, type = "l")
+# annual trend with mean filter
+annual_trend <- zoo::rollapply(ts_coelbe$LUFTTEMPERATUR, 12, mean, align = "center", fill = NA)
+plot(ts_coelbe$Date, ts_coelbe$LUFTTEMPERATUR, type = "l")
+lines(ts_coelbe$Date, annual_trend, col = "red") # ...is not very specific
+
+# dynamics in the seasonal temperature over a year
+seasonal <- ts_coelbe$LUFTTEMPERATUR - annual_trend
+seasonal_mean <- aggregate(seasonal, by = list(rep(seq(1,12), 41)), 
+                           FUN = mean, na.rm = TRUE)
+plot(ts_coelbe$Date, seasonal, type = "l")
+lines(ts_coelbe$Date, rep(seasonal_mean$x, 41), col = "blue")
+
+# clean seasonality by subtracting the mean of each month from the actual monthly temperature
+# so we get the deviation from the mean for each month
+
+monthly_mean <- aggregate(ts_coelbe$LUFTTEMPERATUR, by = list(ts_coelbe$month), FUN = mean)
+ts_coelbe$temp_minus_mean <- ts_coelbe$LUFTTEMPERATUR - monthly_mean$x
+
+# for the lm we need a continuous time variable
+# this divides the years in 12 equal parts:
+ts <- seq(1950, 1990+11/12, length = nrow(ts_coelbe))
+
+# compute linear model
+mod_ts_temp <- lm(ts_coelbe$temp_minus_mean ~ ts)
+# show results
+plot(ts, ts_coelbe$temp_minus_mean, type = "l", xlab = "Time", ylab = "temperature difference from mean")
+abline(mod_ts_temp, col = "red")
+
+```
+### Part 2.1: Temperature ~ NAO
+```{r}
+# only data between 1950 and 1990
+NAO <- NAO[NAO$YEAR < 1991,]
+
+# categorize NAO
+NAO$cat <- "negative"
+NAO$cat[NAO$INDEX >= 0] <- "positive"
+NAO$cat <- as.factor(NAO$cat)  
+
+mod_nao <- lm(ts_coelbe$temp_minus_mean ~ NAO$cat + sin(2*pi*ts) + cos(2*pi*ts))
+summary(mod_nao)
+```
+### Part 2.2: Quality check by dummy models
+```{r}
+# create dummy models with random NAO values
+
+
+dummys <- lapply(seq(2001), function(i){
+  # create dummy column
+  NAO$dummy_cat <- "negative"
+  # sample half and assign positive
+  set.seed(i)
+  s <- sample(nrow(NAO), size = nrow(NAO)/2)
+  NAO$dummy_cat[s] <- "positive"
+  NAO$dummy_cat <- as.factor(NAO$dummy_cat)
+  # compute dummy lm
+  mod_dummy <- lm(ts_coelbe$temp_minus_mean ~ NAO$dummy_cat + sin(2*pi*ts) + cos(2*pi*ts))
+    return(mod_dummy$coefficients[2])
+})
+dummys <- do.call(rbind, dummys)
+
+# identify lowest and hightest 2.5%
+lowest <- quantile(dummys, 0.025)
+highest <- quantile(dummys, 0.975)
+# classify impact of Nao on Temperature
+mod_nao$coefficients[2] < lowest | mod_nao$coefficients[2] > highest
+
+```
