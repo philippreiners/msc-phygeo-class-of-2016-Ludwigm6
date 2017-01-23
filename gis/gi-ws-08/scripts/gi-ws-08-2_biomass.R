@@ -4,24 +4,18 @@
 source("d:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/init.R")
 path <-  fun_init("gi", "08")
 
-# init GRASS 7
 library(raster)
+library(rgdal)
 
+# load DEM and DSM
+dem <- raster(paste0(path$gi$input, "lidar_dem_01m.tif"))
+dsm <- raster(paste0(path$gi$input, "lidar_dsm_01m.tif"))
 
-# GRASS stuff
-#library(rgrass7)
-#source(paste0(path$fun$initGRASS_reudenbach.R))
-#DEM <- raster(paste0(path$gi$input, "lidar_dem_01m.tif"))
-#initGrass4R(x = DEM)
+trees <- readOGR(paste0(path$gi$run, "trees/trees.shp"))
+plot(trees)
 
-
-# load data to test if GRASS works
-# rgrass7::execGRASS('r.import',  
-#                   flags=c('o',"overwrite","quiet"),
-#                   input=paste0(path$gi$input, "lidar_pcag_01m.tif"),
-#                   output="pcag_grass",
-#                   band=1
-#)
+# Stem_biomass = -13.595 + 8.446*mean height + 20.378 *cover
+# branch = -2.447 + 1.367*mean height + 3.3 *cover
 
 
 
@@ -38,10 +32,4 @@ library(raster)
 
 
 
-initGRASS(gisBase = "C:/GIS/GRASS7",
-          gisDbase = "D:/university/data/gis/grass/grass_temp",
-          home = "D:/university/data/gis/grass/grass_temp",
-          location = "D:/university/data/gis/grass/caldern",
-          mapset = "PERMANENT",
-          override = TRUE)
 
