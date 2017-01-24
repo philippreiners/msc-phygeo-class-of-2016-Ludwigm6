@@ -1,0 +1,49 @@
+---
+title: "gi-ws-08-2"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "24 Januar 2017"
+output: html_document
+---
+
+### Biomass
+```{r, include=FALSE}
+library(raster)
+library(rgdal)
+```
+
+
+```{r}
+# initialise script
+source("d:/university/msc-phygeo-class-of-2016-Ludwigm6/fun/init.R")
+path <-  fun_init("gi", "08")
+
+
+
+# load dem, dtm, ground returns and above ground returns
+# list.files(path$gi$input)
+dem <- raster(paste0(path$gi$input, "lidar_dem_01m.tif"))
+dsm <- raster(paste0(path$gi$input, "lidar_dsm_01m.tif"))
+pcag <- raster(paste0(path$gi$input, "lidar_pcag_01m.tif"))
+pcgr <- raster(paste0(path$gi$input, "lidar_pcgr_01m.tif"))
+
+# forest density can be determinated as the ratio of above ground returns to all returns:
+dens <- pcag/(pcgr+pcag)
+dens[is.na(dens)] <- 0
+
+height <- dsm-dem
+height[height < 0] <- 0
+
+
+# models for biomass from table 2 in He et al. 2013
+biomass_stem <- -13.595 + 8.446*mean(height) + 20.378*dens
+biomass_branch <- -2.447 + 1.367*mean(height) + 3.3 *dens
+biomass_wood <- biomass_stem + biomass_branch
+
+biomass_wood[biomass_wood < 0] <- 0
+
+plot(biomass_wood)
+
+```
+
+Verglichen mit bisherigen Versuchen, ist dieses Ergebnis visuell die beste Abgrenzung von Wald / kein Wald.
+Für eine differenziertere Modellierung der Biomasse könnte man das Alter der Baumbestände mit einbeziehen und die Modellparameter entsprechend anpassen.
