@@ -1,0 +1,98 @@
+---
+title: "da-ws-12-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "23 Januar 2017"
+output: html_document
+---
+
+```{r}
+# da_ws_12_01 Publication quality graphics __ ggplot2
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(MASS)
+
+# init
+source("/Volumes/Tapir/Master_phygeo/msc-phygeo-class-of-2016-Loudttec/fun/init.R")
+path <- Init("da","12")
+# read Data
+lu_raw <- readRDS("/Volumes/Tapir/Master_phygeo/data/data_analysis/RData/landuse_data.rds")
+head(lu_raw)
+# rename 
+colnames(lu_raw)[6] <- "settlement"
+colnames(lu_raw)[7] <- "recreation"
+colnames(lu_raw)[8] <- "agriculture"
+colnames(lu_raw)[9] <- "forest"
+#reshape
+lu <- reshape2::melt(lu_raw, id.vars = c("ID", "Year", "Place","Admin_unit","Admin_misc"))
+```
+
+```{r}
+# Boxplots - ggplot
+bwggplot <- ggplot(lu, aes(x=lu$variable,y=lu$value))
+g_bw <- bwggplot + geom_boxplot(na.rm = TRUE) + labs(x="",y="")
+print(g_bw)
+
+# Four Boxplots
+bw_gg1 <- ggplot(lu, 
+                 aes(x=lu$variable,y=lu$value)) + 
+                 ggtitle("Original") + 
+                 theme(plot.title = element_text(face = "bold",size = "14")) +
+                 geom_boxplot(na.rm = TRUE) +
+                 labs(x="",y="")
+bw_gg2 <- ggplot(lu, 
+                 aes(x=lu$variable,y=lu$value**0.5)) +  
+                 ggtitle("Square root") + 
+                 theme(plot.title = element_text(face = "bold",size = "14")) +
+                 geom_boxplot(na.rm = TRUE) +
+                 labs(x="",y="")
+bw_gg3 <- ggplot(lu, 
+                 aes(x=lu$variable,y=lu$value**(1/3))) + 
+                 ggtitle("Cube root")+ 
+                 theme(plot.title = element_text(face = "bold",size = "14")) +
+                 geom_boxplot(na.rm = TRUE) +
+                 labs(x="",y="") 
+bw_gg4 <- ggplot(lu, 
+                 aes(x=lu$variable,y=log(lu$value))) + 
+                 ggtitle("log") +
+                 theme(plot.title = element_text(face = "bold",size = "14")) +
+                 geom_boxplot(na.rm = TRUE) +
+                 labs(x="",y="") 
+
+grid.arrange(bw_gg1,bw_gg2,bw_gg3,bw_gg4, ncol=2)
+```
+
+```{r}
+# Histogramm with ggplot
+hist_ggplot <- ggplot(lu_raw, aes(x = lu_raw$settlement))+ 
+               geom_histogram(fill = "transparent", colour = "black", binwidth = 2) 
+print(hist_ggplot)
+```
+
+```{r}
+# QQ-Plots with ggplot
+gg_agri <- ggplot(lu_raw, aes(sample = lu_raw$agriculture))
+gg_agri + stat_qq() +
+  geom_vline(xintercept = c(-0.75,0.75), colour = "blue", linetype = 2)+  
+  geom_hline(yintercept = c(59,39), colour = "blue", linetype = 2)
+```
+
+```{r}
+# QQPlot, different transformations with ggplot
+
+#for(p in c(1, 0.5, 0.25, 0)){
+#  if(p != 0){
+#    qqnorm((lu_raw$Agriculture**p-1)/p, main = paste0("Normal Q-Q Plot, y**p-1/p for ", p))
+#    qqline((lu_raw$Agriculture**p-1)/p, col = "red")  
+#  } else {
+#    qqnorm(log(lu_raw$Agriculture), main = "Normal Q-Q Plot, log(y)")
+#    qqline(log(lu_raw$Agriculture), col = "red")
+#  }
+#}
+```
+
+```{r}
+# Scatterplots with ggplot
+ggplot(data = lu_raw,aes(lu_raw$settlement, lu_raw$recreation)) + 
+  geom_point()
+```
