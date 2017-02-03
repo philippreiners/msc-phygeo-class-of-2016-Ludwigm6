@@ -1,3 +1,17 @@
+---
+title: "rs-ws-11-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "3 Februar 2017"
+output: html_document
+---
+### Biodiversity
+
+![Fig. 1: Shannon Index for 30m radius around every tree; purple: low diversity, green: high diversity](d:/university/data/images/shannon.png)
+
+![Fig. 2: Inverse distance weighting interpolation of the shannon index with buffersize 30](d:/university/data/images/shannon_interpolation.png)
+
+```{r, eval = FALSE}
+
 # rs-ws-11-1 biodiversity
 
 # init script
@@ -46,4 +60,4 @@ trees@data$shannon_100 <- shannon[[4]]
 writeOGR(trees, dsn = paste0(path$rs$output, "trees_shannon.shp"), driver = "ESRI Shapefile", layer = "trees")
 
 
-
+```
