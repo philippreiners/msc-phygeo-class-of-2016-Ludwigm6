@@ -9,7 +9,7 @@ source(path$fun$fun_compKappa.R)
 
 matrix_files <- list.files(path$samples, pattern = "*.csv", full.names = TRUE)
 
-kappa <- lapply(seq(length(matrix_files)), function(x){
+kappa_55 <- lapply(seq(length(matrix_files)), function(x){
   
   # load matrix and extract rows and cols
   m <- read.csv(matrix_files[[x]], skip = 0, header = FALSE)
@@ -29,9 +29,7 @@ kappa <- lapply(seq(length(matrix_files)), function(x){
       }
     }
   }
-  
   return(compKappa(ctable = template))
-
 })
 
 
