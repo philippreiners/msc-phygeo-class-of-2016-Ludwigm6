@@ -1,0 +1,84 @@
+---
+title: "W-02-1"
+author: "Charlotte Gohr, Marvin Ludwig, Klaas Rueggeberg"
+date: "3 4 2017"
+output: html_document
+---
+# W-02-1 species distribution
+## Part 1: GBif Data
+```{r, warning=FALSE, message=FALSE}
+# initialize script
+source("D:/habitat_mod/scripts/init_uni.R")
+path <- fun_init(data = "D:/habitat_mod/data", scripts = "D:/habitat_mod/scripts")
+
+# required libraries
+library(rgbif)
+library(sp)
+library(gimms)
+library(raster)
+library(rgeos)
+```
+### Species Hessenliste
+```{r , eval = FALSE}
+
+# get Data Hessenliste
+HL_Faun_Flor <- read.csv(paste0(path$data$data,"Liste_Arten.csv"), sep = ";")
+HL_Kreis_Art <- read.csv(paste0(path$data$data,"Kreise_Arten.csv"), sep = ";")
+
+# Data Marburg-Biedenkopf, only animals
+plants <- HL_Faun_Flor[150:259,]
+MR_Bied <- HL_Kreis_Art[which(HL_Kreis_Art$KRS_Abk=="MR"),]
+Art_MRB <- MR_Bied[!(MR_Bied$Wiss..Name %in% plants$Wiss..Name),]
+saveRDS(Art_MRB, file = paste0(path$data$data, "Art_MRB.RDS"))
+
+```
+
+### GBif Data
+```{r, eval=FALSE }
+ # # get shapefile data of hessen
+ger <- getData(country = "Germany", level = 1)
+hes <- subset(ger, NAME_1 == "Hessen")
+# change projection
+hes <- spTransform(hes, CRS("+init=epsg:25832"))
+
+
+# get species list (hessen list script)
+species_MRB <- readRDS(paste0(path$data$RData, "Art_MRB.RDS"))
+species <- as.character(species_MRB$Wiss..Name)
+
+# loop for every species
+species_gbif <- lapply(seq(length(species)), function(i){
+  print(species[i])
+  # get gbif data
+  spec <- occ_search(scientificName = species[i], country = "DE", hasCoordinate = TRUE,
+                     hasGeospatialIssue = FALSE, limit = 1000)
+  # extract only name and coordinates
+  spec <- spec$data[,c("name", "decimalLatitude", "decimalLongitude")]
+  # remove duplicates
+  spec <- spec[!duplicated(spec), ]
+  
+  # check if spec isnt empty
+  if(!is.null(spec)){
+    # create spatial points out of the data frame
+    coordinates(spec) <- ~ decimalLongitude + decimalLatitude
+    proj4string(spec) <- CRS("+init=epsg:4326")
+    spec <- spTransform(spec, CRS("+init=epsg:25832"))
+    
+    # only hessen
+    hes_id <- as.logical(gContains(hes, spec, byid = TRUE))
+    spec <- spec[hes_id,]
+    
+    # check if there are 60 sightings in hessen
+    if(nrow(spec) < 60){spec <- NULL}
+    return(spec) 
+  }
+  
+  
+})
+# delete the NULL entries in the list
+species_gbif_clean <- species_gbif[!sapply(species_gbif, is.null)]
+# save results
+saveRDS(species_gbif_clean, file = paste0(path$data$RData, "gbif_species_hessen.RDS"))
+
+```
+
